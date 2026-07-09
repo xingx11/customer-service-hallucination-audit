@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from customer_service_hallucination_audit.pipeline import run_audit
@@ -26,6 +25,6 @@ def test_committed_stage_1_reports_match_pipeline_output(tmp_path: Path) -> None
     assert committed_markdown.read_text(encoding="utf-8") == result.markdown_path.read_text(
         encoding="utf-8"
     )
-    assert json.loads(committed_json.read_text(encoding="utf-8")) == json.loads(
-        result.json_path.read_text(encoding="utf-8")
+    assert committed_json.read_text(encoding="utf-8") == result.json_path.read_text(
+        encoding="utf-8"
     )
