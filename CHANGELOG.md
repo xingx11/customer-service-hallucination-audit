@@ -13,3 +13,8 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 - Task 0110 source data under `data/`.
 - End-to-end CLI pipeline that reads the default dataset and writes Markdown/JSON reports.
 - Committed stage-one Markdown and JSON delivery reports under `docs/reports/`.
+- CLI entrypoint tests covering help output, default packaged data, explicit paths, output files, and invalid input handling.
+
+### Changed
+
+- Synchronized stage-one plan, task checklist, SPEC, README, and development documentation to reflect first-phase completion.
