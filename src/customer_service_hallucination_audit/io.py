@@ -53,6 +53,8 @@ def _read_json(path: Path) -> object:
         return json.loads(path.read_text(encoding="utf-8"))
     except OSError as exc:
         raise DataValidationError(f"Cannot read JSON file {path}: {exc}") from exc
+    except UnicodeError as exc:
+        raise DataValidationError(f"Cannot decode JSON file {path} as UTF-8: {exc}") from exc
     except JSONDecodeError as exc:
         raise DataValidationError(f"Invalid JSON in {path}: {exc.msg}") from exc
 

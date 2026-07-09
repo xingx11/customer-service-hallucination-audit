@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, cast, get_args
 
 HallucinationType: TypeAlias = Literal[
     "政策编造",
@@ -16,15 +16,9 @@ HallucinationType: TypeAlias = Literal[
     "信息遗漏",
 ]
 
-HALLUCINATION_TYPES: tuple[HallucinationType, ...] = (
-    "政策编造",
-    "政策偏差",
-    "参数编造",
-    "优惠编造",
-    "信息编造",
-    "能力越界",
-    "安全误导",
-    "信息遗漏",
+HALLUCINATION_TYPES: tuple[HallucinationType, ...] = cast(
+    tuple[HallucinationType, ...],
+    get_args(HallucinationType),
 )
 
 ErrorType: TypeAlias = Literal["false_positive", "false_negative", "type_mismatch"]
