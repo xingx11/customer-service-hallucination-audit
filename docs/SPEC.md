@@ -86,6 +86,7 @@ def calculate_f1(precision: float, recall: float) -> float:
 - 可以输出逐条检测结果。
 - 可以计算 precision、recall、F1、漏检和误报。
 - CLI 可以通过默认数据或显式路径运行端到端流水线，并生成 Markdown/JSON 报告。
+- 仓库提交阶段一 Markdown/JSON 交付报告，并可用测试验证其与当前流水线输出一致。
 - README 说明分类体系、检测方法、局限性和 AI 工具使用情况。
 - CI 中 lint、format check、type check、tests 全部通过。
 

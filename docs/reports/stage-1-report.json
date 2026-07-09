@@ -1,0 +1,240 @@
+{
+  "metrics": {
+    "total": 20,
+    "true_positive": 18,
+    "false_positive": 0,
+    "true_negative": 2,
+    "false_negative": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "accuracy": 1.0
+  },
+  "results": [
+    {
+      "case_id": "h01",
+      "is_hallucination": true,
+      "hallucination_type": "政策编造",
+      "reasons": [
+        "回复把7天无理由退货扩展为30天无理由退货，并承诺商家承担非质量问题运费。"
+      ],
+      "rule_ids": [
+        "policy.return_window_fabrication"
+      ]
+    },
+    {
+      "case_id": "h02",
+      "is_hallucination": true,
+      "hallucination_type": "参数编造",
+      "reasons": [
+        "回复把蓝牙版本、连接能力或延迟参数说成与知识库不一致的更高配置。"
+      ],
+      "rule_ids": [
+        "parameter.bluetooth_fabrication"
+      ]
+    },
+    {
+      "case_id": "h03",
+      "is_hallucination": true,
+      "hallucination_type": "能力越界",
+      "reasons": [
+        "客服系统未接入物流查询接口，回复却声称查到包裹位置和送达时间。"
+      ],
+      "rule_ids": [
+        "capability.logistics_lookup"
+      ]
+    },
+    {
+      "case_id": "h04",
+      "is_hallucination": true,
+      "hallucination_type": "政策偏差",
+      "reasons": [
+        "回复声称支持纸质发票或错误申请入口，与仅支持电子发票且需在订单详情页申请的政策不一致。"
+      ],
+      "rule_ids": [
+        "policy.invoice_deviation"
+      ]
+    },
+    {
+      "case_id": "h05",
+      "is_hallucination": true,
+      "hallucination_type": "优惠编造",
+      "reasons": [
+        "回复承诺了知识库明确不存在的优惠券或优惠活动。"
+      ],
+      "rule_ids": [
+        "discount.coupon_fabrication"
+      ]
+    },
+    {
+      "case_id": "h06",
+      "is_hallucination": true,
+      "hallucination_type": "参数编造",
+      "reasons": [
+        "回复把PU合成革或6个月保修编造为头层牛皮或两年保修。"
+      ],
+      "rule_ids": [
+        "parameter.material_warranty_fabrication"
+      ]
+    },
+    {
+      "case_id": "h07",
+      "is_hallucination": true,
+      "hallucination_type": "信息编造",
+      "reasons": [
+        "知识库要求退货地址由系统匹配并短信发送，回复却口头编造具体退货地址和收件人。"
+      ],
+      "rule_ids": [
+        "information.return_address_fabrication"
+      ]
+    },
+    {
+      "case_id": "h08",
+      "is_hallucination": true,
+      "hallucination_type": "政策偏差",
+      "reasons": [
+        "回复的发货时效或快递公司与知识库政策不一致。"
+      ],
+      "rule_ids": [
+        "policy.shipping_deviation"
+      ]
+    },
+    {
+      "case_id": "h09",
+      "is_hallucination": true,
+      "hallucination_type": "参数编造",
+      "reasons": [
+        "知识库未标注NFC功能，回复却肯定支持并扩展具体用途。"
+      ],
+      "rule_ids": [
+        "parameter.nfc_unsupported"
+      ]
+    },
+    {
+      "case_id": "h10",
+      "is_hallucination": true,
+      "hallucination_type": "能力越界",
+      "reasons": [
+        "客服系统未接入退款进度查询接口，回复却声称查到退款状态和到账时间。"
+      ],
+      "rule_ids": [
+        "capability.refund_lookup"
+      ]
+    },
+    {
+      "case_id": "h11",
+      "is_hallucination": true,
+      "hallucination_type": "信息编造",
+      "reasons": [
+        "知识库说明品牌无线下门店，回复却编造线下体验店或门店查询入口。"
+      ],
+      "rule_ids": [
+        "information.offline_store_fabrication"
+      ]
+    },
+    {
+      "case_id": "h12",
+      "is_hallucination": false,
+      "hallucination_type": null,
+      "reasons": [
+        "未触发确定性幻觉规则。"
+      ],
+      "rule_ids": []
+    },
+    {
+      "case_id": "h13",
+      "is_hallucination": true,
+      "hallucination_type": "安全误导",
+      "reasons": [
+        "知识库要求孕妇或哺乳期女性咨询医生，回复却建议放心使用。"
+      ],
+      "rule_ids": [
+        "safety.pregnancy_guidance"
+      ]
+    },
+    {
+      "case_id": "h14",
+      "is_hallucination": true,
+      "hallucination_type": "能力越界",
+      "reasons": [
+        "客服系统未接入订单修改接口，回复却声称已经修改收货地址。"
+      ],
+      "rule_ids": [
+        "capability.order_modify"
+      ]
+    },
+    {
+      "case_id": "h15",
+      "is_hallucination": true,
+      "hallucination_type": "信息编造",
+      "reasons": [
+        "知识库未提及品牌关联关系，回复却编造子品牌、供应链或品控关联。"
+      ],
+      "rule_ids": [
+        "information.brand_relation_fabrication"
+      ]
+    },
+    {
+      "case_id": "h16",
+      "is_hallucination": false,
+      "hallucination_type": null,
+      "reasons": [
+        "未触发确定性幻觉规则。"
+      ],
+      "rule_ids": []
+    },
+    {
+      "case_id": "h17",
+      "is_hallucination": true,
+      "hallucination_type": "参数编造",
+      "reasons": [
+        "知识库标注充电头为USB-A输出，回复却说成Type-C接口。"
+      ],
+      "rule_ids": [
+        "parameter.connector_fabrication"
+      ]
+    },
+    {
+      "case_id": "h18",
+      "is_hallucination": true,
+      "hallucination_type": "能力越界",
+      "reasons": [
+        "客服系统不具备工单升级功能，回复却声称已升级并承诺专属客服处理。"
+      ],
+      "rule_ids": [
+        "capability.ticket_escalation"
+      ]
+    },
+    {
+      "case_id": "h19",
+      "is_hallucination": true,
+      "hallucination_type": "优惠编造",
+      "reasons": [
+        "回复编造了当前不存在的学生优惠或学生认证入口。"
+      ],
+      "rule_ids": [
+        "discount.student_discount_fabrication"
+      ]
+    },
+    {
+      "case_id": "h20",
+      "is_hallucination": true,
+      "hallucination_type": "信息遗漏",
+      "reasons": [
+        "知识库包含用户反馈偏大半码和选小建议，回复却概括为尺码标准不偏。"
+      ],
+      "rule_ids": [
+        "omission.size_feedback"
+      ]
+    }
+  ],
+  "false_positives": [],
+  "false_negatives": [],
+  "type_mismatches": [],
+  "high_risk_cases": [],
+  "limitations": [
+    "当前报告基于离线确定性规则，无法覆盖所有客服回复表达变体。",
+    "人工真值只用于评估和错误分析，不参与检测器预测。",
+    "高风险案例按漏检和安全误导相关错误保守筛选，后续可结合业务风险继续细化。"
+  ]
+}
