@@ -89,14 +89,14 @@
 
 **Acceptance criteria:**
 
-- [ ] 指标定义清晰，除零时返回 `0.0`。
-- [ ] false positives 和 false negatives 按样本 ID 稳定排序。
-- [ ] 类型错误和是否幻觉错误能在错误分析中区分。
+- [x] 指标定义清晰，除零时返回 `0.0`。
+- [x] false positives 和 false negatives 按样本 ID 稳定排序。
+- [x] 类型错误和是否幻觉错误能在错误分析中区分。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_metrics.py`
-- [ ] Edge cases covered: empty input, all-positive, all-negative, no predicted positives.
+- [x] Tests pass: `python -m pytest tests/test_metrics.py`
+- [x] Edge cases covered: empty input, all-positive, all-negative, no predicted positives.
 
 **Dependencies:** Task 1
 
