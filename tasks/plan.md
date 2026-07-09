@@ -48,14 +48,14 @@
 
 ### Phase 3: Reporting And CLI
 
-- [ ] Task 5: 实现 Markdown 和 JSON 报告生成。
+- [x] Task 5: 实现 Markdown 和 JSON 报告生成。
 - [ ] Task 6: 集成 CLI 参数和端到端 pipeline。
 
 ### Checkpoint: Reporting And CLI
 
 - [ ] 默认命令可读取 `data/` 下的样本并生成报告。
 - [ ] 显式输入路径和输出目录可用。
-- [ ] 报告内容排序稳定，便于 golden-style 测试。
+- [x] 报告内容排序稳定，便于 golden-style 测试。
 
 ### Phase 4: Documentation And Quality
 
