@@ -13,7 +13,7 @@ from customer_service_hallucination_audit.models import (
 )
 from customer_service_hallucination_audit.validation import (
     ensure_matching_ids,
-    ensure_unique_ids,
+    index_unique_by_id,
 )
 
 
@@ -102,23 +102,21 @@ def _index_comparable_records(
 
 
 def _index_predictions(predictions: Iterable[DetectionResult]) -> dict[str, DetectionResult]:
-    predictions_tuple = tuple(predictions)
-    ensure_unique_ids(
-        (prediction.case_id for prediction in predictions_tuple),
+    return index_unique_by_id(
+        predictions,
+        lambda prediction: prediction.case_id,
         record_name="prediction",
         exc_type=MetricsValidationError,
     )
-    return {prediction.case_id: prediction for prediction in predictions_tuple}
 
 
 def _index_labels(labels: Iterable[GroundTruthLabel]) -> dict[str, GroundTruthLabel]:
-    labels_tuple = tuple(labels)
-    ensure_unique_ids(
-        (label.case_id for label in labels_tuple),
+    return index_unique_by_id(
+        labels,
+        lambda label: label.case_id,
         record_name="label",
         exc_type=MetricsValidationError,
     )
-    return {label.case_id: label for label in labels_tuple}
 
 
 def _ensure_matching_ids(

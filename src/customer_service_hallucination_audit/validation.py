@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from collections.abc import Set as AbstractSet
+from typing import TypeVar
+
+RecordT = TypeVar("RecordT")
 
 
 def ensure_unique_ids(
@@ -19,6 +22,24 @@ def ensure_unique_ids(
         if case_id in seen:
             raise exc_type(f"Duplicate {record_name} id '{case_id}'")
         seen.add(case_id)
+
+
+def index_unique_by_id(
+    records: Iterable[RecordT],
+    get_case_id: Callable[[RecordT], str],
+    *,
+    record_name: str,
+    exc_type: type[ValueError],
+) -> dict[str, RecordT]:
+    """Build an ID index and reject duplicates in a single pass."""
+
+    records_by_id: dict[str, RecordT] = {}
+    for record in records:
+        case_id = get_case_id(record)
+        if case_id in records_by_id:
+            raise exc_type(f"Duplicate {record_name} id '{case_id}'")
+        records_by_id[case_id] = record
+    return records_by_id
 
 
 def ensure_matching_ids(
@@ -49,4 +70,5 @@ def ensure_matching_ids(
 __all__ = [
     "ensure_matching_ids",
     "ensure_unique_ids",
+    "index_unique_by_id",
 ]
