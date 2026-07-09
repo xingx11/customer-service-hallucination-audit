@@ -39,14 +39,14 @@
 
 **Acceptance criteria:**
 
-- [ ] 默认数据文件可解析出 20 条回复和 20 条人工标注。
-- [ ] replies 和 ground truth 的 ID 集合必须完全一致。
-- [ ] 非法 JSON 结构抛出可理解的领域错误。
+- [x] 默认数据文件可解析出 20 条回复和 20 条人工标注。
+- [x] replies 和 ground truth 的 ID 集合必须完全一致。
+- [x] 非法 JSON 结构抛出可理解的领域错误。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_io.py`
-- [ ] Integration check: 使用默认 `data/` 文件加载成功。
+- [x] Tests pass: `python -m pytest tests/test_io.py`
+- [x] Integration check: 使用默认 `data/` 文件加载成功。
 
 **Dependencies:** Task 1
 

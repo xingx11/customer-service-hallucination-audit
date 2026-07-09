@@ -27,12 +27,12 @@
 ### Phase 1: Data Foundation
 
 - [x] Task 1: 定义领域模型和类型边界。
-- [ ] Task 2: 实现 JSON 读取与数据一致性校验。
+- [x] Task 2: 实现 JSON 读取与数据一致性校验。
 
 ### Checkpoint: Data Foundation
 
 - [x] 数据模型测试通过。
-- [ ] loader 能发现缺字段、重复 ID、ID 不对齐和未知类型。
+- [x] loader 能发现缺字段、重复 ID、ID 不对齐和未知类型。
 - [x] 业务层没有无约束 `dict[str, object]` 扩散。
 
 ### Phase 2: Detection And Evaluation

@@ -16,6 +16,17 @@ HallucinationType: TypeAlias = Literal[
     "信息遗漏",
 ]
 
+HALLUCINATION_TYPES: tuple[HallucinationType, ...] = (
+    "政策编造",
+    "政策偏差",
+    "参数编造",
+    "优惠编造",
+    "信息编造",
+    "能力越界",
+    "安全误导",
+    "信息遗漏",
+)
+
 ErrorType: TypeAlias = Literal["false_positive", "false_negative", "type_mismatch"]
 
 
@@ -37,6 +48,14 @@ class GroundTruthLabel:
     is_hallucination: bool
     hallucination_type: HallucinationType | None
     detail: str
+
+
+@dataclass(frozen=True)
+class AuditDataset:
+    """Validated reply cases paired with their human labels."""
+
+    replies: tuple[ReplyCase, ...]
+    labels: tuple[GroundTruthLabel, ...]
 
 
 @dataclass(frozen=True)
@@ -84,10 +103,12 @@ class ErrorCase:
 
 
 __all__ = [
+    "AuditDataset",
     "DetectionResult",
     "ErrorCase",
     "ErrorType",
     "GroundTruthLabel",
+    "HALLUCINATION_TYPES",
     "HallucinationType",
     "MetricsSummary",
     "ReplyCase",
