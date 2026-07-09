@@ -32,14 +32,14 @@
 
 **Acceptance criteria:**
 
-- [ ] 新样本不修改 `data/replies.json` 或 `data/ground_truth.json` 的格式。
-- [ ] 样本覆盖至少 6 类幻觉和至少 3 条困难负例。
-- [ ] 样本说明能解释为什么它们补足阶段一默认数据的盲区。
+- [x] 新样本不修改 `data/replies.json` 或 `data/ground_truth.json` 的格式。
+- [x] 样本覆盖至少 6 类幻觉和至少 3 条困难负例。
+- [x] 样本说明能解释为什么它们补足阶段一默认数据的盲区。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_detector.py`
-- [ ] Fixture review confirms no 人工真值硬编码进 detector。
+- [x] Tests pass: `python -m pytest tests/test_detector.py`
+- [x] Fixture review confirms no 人工真值硬编码进 detector。
 
 **Dependencies:** Task 9
 

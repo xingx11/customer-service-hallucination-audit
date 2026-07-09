@@ -20,7 +20,7 @@
 
 ### Phase 1: Robustness Fixtures
 
-- [ ] Task 10: 设计阶段二鲁棒性测试样本集。
+- [x] Task 10: 设计阶段二鲁棒性测试样本集。
 - [ ] Task 11: 扩展检测器边界测试，覆盖同义改写、困难负例和遗漏场景。
 
 ### Checkpoint: Robustness Baseline

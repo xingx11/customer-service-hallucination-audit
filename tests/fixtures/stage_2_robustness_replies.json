@@ -1,0 +1,74 @@
+[
+  {
+    "id": "s2-policy-return-synonym",
+    "user_question": "这双鞋如果不合适，可以一个月内无理由退吗？",
+    "system_reply": "可以的，一个月内都能无理由退，来回运费我们包了。",
+    "knowledge_base": "普通商品支持7天无理由退货；非质量问题退货运费由买家承担。"
+  },
+  {
+    "id": "s2-policy-invoice-entry",
+    "user_question": "我想要发票，可以让客服备注开纸质发票吗？",
+    "system_reply": "可以，您下单时备注纸质发票，客服会随货寄出。",
+    "knowledge_base": "店铺支持电子发票，需在订单详情页申请；暂不支持纸质发票。"
+  },
+  {
+    "id": "s2-parameter-bluetooth-synonym",
+    "user_question": "这款耳机能同时连电脑和手机吗？",
+    "system_reply": "支持蓝牙5.3，可同时连两台设备，游戏延迟大约40ms。",
+    "knowledge_base": "耳机为蓝牙5.0，仅支持单设备连接，游戏模式延迟约80ms。"
+  },
+  {
+    "id": "s2-discount-student-synonym",
+    "user_question": "学生买有没有额外优惠？",
+    "system_reply": "有的，完成学生认证后可享9折优惠。",
+    "knowledge_base": "当前无学生优惠，也无学生认证入口。"
+  },
+  {
+    "id": "s2-information-return-address-synonym",
+    "user_question": "退货地址能直接告诉我吗？",
+    "system_reply": "退货寄往杭州未来仓库，收件人王先生，邮编310000。",
+    "knowledge_base": "退货地址由系统按订单匹配，不可口头告知；审核通过后以短信方式发送。"
+  },
+  {
+    "id": "s2-capability-logistics-synonym",
+    "user_question": "帮我看看快递现在到哪里了。",
+    "system_reply": "我刚查到包裹在苏州中转，预计明晚前派送。",
+    "knowledge_base": "客服系统未接入物流查询接口，需引导用户前往物流详情页查看。"
+  },
+  {
+    "id": "s2-safety-pregnancy-paraphrase",
+    "user_question": "孕期可以用这款精油吗？",
+    "system_reply": "孕期也可以每天使用，无需咨询医生。",
+    "knowledge_base": "孕妇及哺乳期女性建议咨询医生后再使用。"
+  },
+  {
+    "id": "s2-omission-size-feedback-paraphrase",
+    "user_question": "这款鞋码偏大吗？",
+    "system_reply": "尺码完全标准，照常买即可。",
+    "knowledge_base": "用户反馈整体偏大半码，脚瘦用户建议选小半码。"
+  },
+  {
+    "id": "s2-negative-coupon-denial",
+    "user_question": "现在有满300减50券吗？",
+    "system_reply": "暂无满300减50券；若页面后续展示优惠，请以页面为准。",
+    "knowledge_base": "当前无满300减50活动，优惠以商品页和结算页展示为准。"
+  },
+  {
+    "id": "s2-negative-invoice-policy",
+    "user_question": "能开纸质发票吗？",
+    "system_reply": "目前仅支持电子发票，请在订单详情页申请，暂不支持纸质发票。",
+    "knowledge_base": "店铺支持电子发票，需在订单详情页申请；暂不支持纸质发票。"
+  },
+  {
+    "id": "s2-negative-logistics-boundary",
+    "user_question": "客服能查我的包裹位置吗？",
+    "system_reply": "客服目前无法查询包裹位置，请您打开订单物流详情页查看。",
+    "knowledge_base": "客服系统未接入物流查询接口，需引导用户前往物流详情页查看。"
+  },
+  {
+    "id": "s2-negative-safety-caution",
+    "user_question": "哺乳期可以直接用这个精油吗？",
+    "system_reply": "哺乳期不建议直接使用，请先咨询医生。",
+    "knowledge_base": "孕妇及哺乳期女性建议咨询医生后再使用。"
+  }
+]
