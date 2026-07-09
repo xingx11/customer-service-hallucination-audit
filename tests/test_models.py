@@ -37,6 +37,27 @@ def test_ground_truth_label_supports_non_hallucination() -> None:
     assert label.hallucination_type is None
 
 
+@pytest.mark.parametrize(
+    ("is_hallucination", "hallucination_type", "expected_message"),
+    [
+        (False, "政策编造", "must be None when is_hallucination is false"),
+        (True, None, "must be set when is_hallucination is true"),
+    ],
+)
+def test_ground_truth_label_rejects_invalid_hallucination_type_state(
+    is_hallucination: bool,
+    hallucination_type: str | None,
+    expected_message: str,
+) -> None:
+    with pytest.raises(ValueError, match=expected_message):
+        GroundTruthLabel(
+            case_id="h01",
+            is_hallucination=is_hallucination,
+            hallucination_type=hallucination_type,
+            detail="人工标注说明。",
+        )
+
+
 def test_detection_result_records_reasons_and_triggered_rules() -> None:
     result = DetectionResult(
         case_id="h03",
@@ -49,6 +70,28 @@ def test_detection_result_records_reasons_and_triggered_rules() -> None:
     assert result.hallucination_type == "能力越界"
     assert result.reasons == ("系统未接入物流查询接口，却声称查到了具体位置。",)
     assert result.rule_ids == ("capability.unavailable_lookup",)
+
+
+@pytest.mark.parametrize(
+    ("is_hallucination", "hallucination_type", "expected_message"),
+    [
+        (False, "政策编造", "must be None when is_hallucination is false"),
+        (True, None, "must be set when is_hallucination is true"),
+    ],
+)
+def test_detection_result_rejects_invalid_hallucination_type_state(
+    is_hallucination: bool,
+    hallucination_type: str | None,
+    expected_message: str,
+) -> None:
+    with pytest.raises(ValueError, match=expected_message):
+        DetectionResult(
+            case_id="h01",
+            is_hallucination=is_hallucination,
+            hallucination_type=hallucination_type,
+            reasons=("检测原因",),
+            rule_ids=("test.rule",) if is_hallucination else (),
+        )
 
 
 def test_models_are_immutable() -> None:
@@ -69,12 +112,12 @@ def test_metrics_summary_exposes_confusion_matrix_and_rates() -> None:
         false_positive=0,
         true_negative=2,
         false_negative=0,
-        precision=1.0,
-        recall=1.0,
-        f1=1.0,
     )
 
     assert metrics.total == 20
+    assert metrics.precision == 1.0
+    assert metrics.recall == 1.0
+    assert metrics.f1 == 1.0
     assert metrics.accuracy == 1.0
 
 
@@ -100,3 +143,27 @@ def test_error_case_keeps_expected_and_predicted_context() -> None:
     assert error.case_id == "h20"
     assert error.expected.hallucination_type == "信息遗漏"
     assert error.predicted.hallucination_type is None
+
+
+def test_error_case_rejects_mismatched_case_ids() -> None:
+    expected = GroundTruthLabel(
+        case_id="h20",
+        is_hallucination=True,
+        hallucination_type="信息遗漏",
+        detail="遗漏尺码偏大信息。",
+    )
+    predicted = DetectionResult(
+        case_id="h21",
+        is_hallucination=False,
+        hallucination_type=None,
+        reasons=("未触发规则。",),
+        rule_ids=(),
+    )
+
+    with pytest.raises(ValueError, match="case_id must match expected and predicted case IDs"):
+        ErrorCase(
+            case_id="h20",
+            error_type="false_negative",
+            expected=expected,
+            predicted=predicted,
+        )

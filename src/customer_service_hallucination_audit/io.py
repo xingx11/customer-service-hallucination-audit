@@ -15,6 +15,10 @@ from customer_service_hallucination_audit.models import (
     HallucinationType,
     ReplyCase,
 )
+from customer_service_hallucination_audit.validation import (
+    ensure_matching_ids,
+    ensure_unique_ids,
+)
 
 
 class DataValidationError(ValueError):
@@ -150,11 +154,7 @@ def _require_hallucination_type(
 
 
 def _ensure_unique_case_ids(case_ids: Iterable[str], *, record_name: str) -> None:
-    seen: set[str] = set()
-    for case_id in case_ids:
-        if case_id in seen:
-            raise DataValidationError(f"Duplicate {record_name} id '{case_id}'")
-        seen.add(case_id)
+    ensure_unique_ids(case_ids, record_name=record_name, exc_type=DataValidationError)
 
 
 def _ensure_matching_case_ids(
@@ -163,15 +163,11 @@ def _ensure_matching_case_ids(
 ) -> None:
     reply_ids = {reply.case_id for reply in replies}
     label_ids = {label.case_id for label in labels}
-    if reply_ids == label_ids:
-        return
-
-    details: list[str] = []
-    missing_labels = sorted(reply_ids - label_ids)
-    unexpected_labels = sorted(label_ids - reply_ids)
-    if missing_labels:
-        details.append(f"missing labels for: {', '.join(missing_labels)}")
-    if unexpected_labels:
-        details.append(f"unexpected labels for: {', '.join(unexpected_labels)}")
-
-    raise DataValidationError("Reply and ground truth IDs must match; " + "; ".join(details))
+    ensure_matching_ids(
+        reply_ids,
+        label_ids,
+        error_prefix="Reply and ground truth IDs must match",
+        missing_actual_label="missing labels for",
+        unexpected_actual_label="unexpected labels for",
+        exc_type=DataValidationError,
+    )

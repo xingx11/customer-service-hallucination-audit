@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator
+from typing import cast
+
 import pytest
 
 from customer_service_hallucination_audit.metrics import (
@@ -45,6 +48,46 @@ def result(
     )
 
 
+class ExhaustionTracker:
+    def __init__(self) -> None:
+        self.is_exhausted = False
+
+
+class ExhaustionAwareRecord:
+    def __init__(
+        self,
+        case_id: str,
+        *,
+        is_hallucination: bool,
+        exhaustion_tracker: ExhaustionTracker,
+    ) -> None:
+        self._case_id = case_id
+        self.is_hallucination = is_hallucination
+        self.hallucination_type = None
+        self.exhaustion_tracker = exhaustion_tracker
+
+    @property
+    def case_id(self) -> str:
+        if self.exhaustion_tracker.is_exhausted:
+            raise AssertionError("case_id was read after the source iterable was exhausted")
+        return self._case_id
+
+
+class ExhaustionAwareIterable:
+    def __init__(
+        self,
+        records: tuple[ExhaustionAwareRecord, ...],
+        *,
+        exhaustion_tracker: ExhaustionTracker,
+    ) -> None:
+        self.records = records
+        self.exhaustion_tracker = exhaustion_tracker
+
+    def __iter__(self) -> Iterator[ExhaustionAwareRecord]:
+        yield from self.records
+        self.exhaustion_tracker.is_exhausted = True
+
+
 def test_calculate_metrics_counts_binary_outcomes_and_rates() -> None:
     labels = (
         label("h01", is_hallucination=True, hallucination_type="政策编造"),
@@ -71,6 +114,39 @@ def test_calculate_metrics_counts_binary_outcomes_and_rates() -> None:
     assert summary.recall == pytest.approx(2 / 3)
     assert summary.f1 == pytest.approx(2 / 3)
     assert summary.accuracy == pytest.approx(3 / 5)
+
+
+def test_calculate_metrics_indexes_streaming_iterables_before_exhaustion() -> None:
+    prediction_tracker = ExhaustionTracker()
+    label_tracker = ExhaustionTracker()
+    predictions = ExhaustionAwareIterable(
+        (
+            ExhaustionAwareRecord(
+                "h01",
+                is_hallucination=False,
+                exhaustion_tracker=prediction_tracker,
+            ),
+        ),
+        exhaustion_tracker=prediction_tracker,
+    )
+    labels = ExhaustionAwareIterable(
+        (
+            ExhaustionAwareRecord(
+                "h01",
+                is_hallucination=False,
+                exhaustion_tracker=label_tracker,
+            ),
+        ),
+        exhaustion_tracker=label_tracker,
+    )
+
+    summary = calculate_metrics(
+        cast(Iterable[DetectionResult], predictions),
+        cast(Iterable[GroundTruthLabel], labels),
+    )
+
+    assert summary.true_negative == 1
+    assert summary.total == 1
 
 
 def test_analyze_errors_distinguishes_binary_and_type_errors() -> None:

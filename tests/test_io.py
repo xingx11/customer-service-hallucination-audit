@@ -12,6 +12,10 @@ from customer_service_hallucination_audit.io import (
     load_reply_cases,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+REPLIES_PATH = REPO_ROOT / "data" / "replies.json"
+GROUND_TRUTH_PATH = REPO_ROOT / "data" / "ground_truth.json"
+
 
 def write_json(path: Path, value: object) -> Path:
     path.write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
@@ -38,8 +42,8 @@ def valid_label(case_id: str = "h01") -> dict[str, object]:
 
 def test_load_audit_dataset_reads_default_data() -> None:
     dataset = load_audit_dataset(
-        replies_path=Path("data/replies.json"),
-        labels_path=Path("data/ground_truth.json"),
+        replies_path=REPLIES_PATH,
+        labels_path=GROUND_TRUTH_PATH,
     )
     replies_by_id = {reply.case_id: reply for reply in dataset.replies}
     labels_by_id = {label.case_id: label for label in dataset.labels}

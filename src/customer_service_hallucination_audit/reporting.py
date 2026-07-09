@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable, Iterable
+from dataclasses import dataclass
+from typing import TypedDict
 
 from customer_service_hallucination_audit.metrics import select_error_cases
 from customer_service_hallucination_audit.models import (
     DetectionResult,
     ErrorCase,
+    ErrorType,
     GroundTruthLabel,
+    HallucinationType,
     MetricsSummary,
 )
 
@@ -20,27 +24,82 @@ LIMITATIONS: tuple[str, ...] = (
 )
 
 
+class MetricsPayload(TypedDict):
+    total: int
+    true_positive: int
+    false_positive: int
+    true_negative: int
+    false_negative: int
+    precision: float
+    recall: float
+    f1: float
+    accuracy: float
+
+
+class ResultPayload(TypedDict):
+    case_id: str
+    is_hallucination: bool
+    hallucination_type: HallucinationType | None
+    reasons: list[str]
+    rule_ids: list[str]
+
+
+class LabelPayload(TypedDict):
+    case_id: str
+    is_hallucination: bool
+    hallucination_type: HallucinationType | None
+    detail: str
+
+
+class ErrorPayload(TypedDict):
+    case_id: str
+    error_type: ErrorType
+    expected: LabelPayload
+    predicted: ResultPayload
+
+
+class ReportPayload(TypedDict):
+    metrics: MetricsPayload
+    results: list[ResultPayload]
+    false_positives: list[ErrorPayload]
+    false_negatives: list[ErrorPayload]
+    type_mismatches: list[ErrorPayload]
+    high_risk_cases: list[ErrorPayload]
+    limitations: list[str]
+
+
+@dataclass(frozen=True)
+class ReportSections:
+    results: tuple[DetectionResult, ...]
+    false_positives: tuple[ErrorCase, ...]
+    false_negatives: tuple[ErrorCase, ...]
+    type_mismatches: tuple[ErrorCase, ...]
+    high_risk_cases: tuple[ErrorCase, ...]
+
+
 def build_report_payload(
     results: Iterable[DetectionResult],
     metrics: MetricsSummary,
     error_cases: Iterable[ErrorCase],
-) -> dict[str, object]:
+) -> ReportPayload:
     """Build the machine-readable report structure with stable ordering."""
 
-    sorted_results = sorted(results, key=lambda result: result.case_id)
-    sorted_errors = sorted(error_cases, key=lambda error_case: error_case.case_id)
-    false_positives = select_error_cases(sorted_errors, "false_positive")
-    false_negatives = select_error_cases(sorted_errors, "false_negative")
-    type_mismatches = select_error_cases(sorted_errors, "type_mismatch")
+    sections = _prepare_report_sections(results, error_cases)
 
     return {
         "metrics": _metrics_to_payload(metrics),
-        "results": [_result_to_payload(result) for result in sorted_results],
-        "false_positives": [_error_to_payload(error_case) for error_case in false_positives],
-        "false_negatives": [_error_to_payload(error_case) for error_case in false_negatives],
-        "type_mismatches": [_error_to_payload(error_case) for error_case in type_mismatches],
+        "results": [_result_to_payload(result) for result in sections.results],
+        "false_positives": [
+            _error_to_payload(error_case) for error_case in sections.false_positives
+        ],
+        "false_negatives": [
+            _error_to_payload(error_case) for error_case in sections.false_negatives
+        ],
+        "type_mismatches": [
+            _error_to_payload(error_case) for error_case in sections.type_mismatches
+        ],
         "high_risk_cases": [
-            _error_to_payload(error_case) for error_case in _select_high_risk_errors(sorted_errors)
+            _error_to_payload(error_case) for error_case in sections.high_risk_cases
         ],
         "limitations": list(LIMITATIONS),
     }
@@ -70,12 +129,7 @@ def render_markdown_report(
 ) -> str:
     """Render a human-readable Markdown report with stable sections."""
 
-    sorted_results = sorted(results, key=lambda result: result.case_id)
-    sorted_errors = sorted(error_cases, key=lambda error_case: error_case.case_id)
-    false_positives = select_error_cases(sorted_errors, "false_positive")
-    false_negatives = select_error_cases(sorted_errors, "false_negative")
-    type_mismatches = select_error_cases(sorted_errors, "type_mismatch")
-    high_risk_cases = _select_high_risk_errors(sorted_errors)
+    sections = _prepare_report_sections(results, error_cases)
 
     lines: list[str] = [
         "# 客服回复幻觉检测报告",
@@ -100,25 +154,25 @@ def render_markdown_report(
         "| --- | --- | --- | --- | --- |",
     ]
 
-    lines.extend(_render_result_row(result) for result in sorted_results)
+    lines.extend(_render_result_row(result) for result in sections.results)
     lines.extend(
         [
             "",
             "## 漏检",
             "",
-            *_render_error_lines(false_negatives, _format_false_negative),
+            *_render_error_lines(sections.false_negatives, _format_false_negative),
             "",
             "## 误报",
             "",
-            *_render_error_lines(false_positives, _format_false_positive),
+            *_render_error_lines(sections.false_positives, _format_false_positive),
             "",
             "## 类型错误",
             "",
-            *_render_error_lines(type_mismatches, _format_type_mismatch),
+            *_render_error_lines(sections.type_mismatches, _format_type_mismatch),
             "",
             "## 高风险案例",
             "",
-            *_render_error_lines(high_risk_cases, _format_high_risk_case),
+            *_render_error_lines(sections.high_risk_cases, _format_high_risk_case),
             "",
             "## 局限性",
             "",
@@ -128,7 +182,22 @@ def render_markdown_report(
     return "\n".join(lines) + "\n"
 
 
-def _metrics_to_payload(metrics: MetricsSummary) -> dict[str, int | float]:
+def _prepare_report_sections(
+    results: Iterable[DetectionResult],
+    error_cases: Iterable[ErrorCase],
+) -> ReportSections:
+    sorted_results = tuple(sorted(results, key=lambda result: result.case_id))
+    sorted_errors = tuple(sorted(error_cases, key=lambda error_case: error_case.case_id))
+    return ReportSections(
+        results=sorted_results,
+        false_positives=select_error_cases(sorted_errors, "false_positive"),
+        false_negatives=select_error_cases(sorted_errors, "false_negative"),
+        type_mismatches=select_error_cases(sorted_errors, "type_mismatch"),
+        high_risk_cases=_select_high_risk_errors(sorted_errors),
+    )
+
+
+def _metrics_to_payload(metrics: MetricsSummary) -> MetricsPayload:
     return {
         "total": metrics.total,
         "true_positive": metrics.true_positive,
@@ -142,7 +211,7 @@ def _metrics_to_payload(metrics: MetricsSummary) -> dict[str, int | float]:
     }
 
 
-def _result_to_payload(result: DetectionResult) -> dict[str, object]:
+def _result_to_payload(result: DetectionResult) -> ResultPayload:
     return {
         "case_id": result.case_id,
         "is_hallucination": result.is_hallucination,
@@ -152,7 +221,7 @@ def _result_to_payload(result: DetectionResult) -> dict[str, object]:
     }
 
 
-def _error_to_payload(error_case: ErrorCase) -> dict[str, object]:
+def _error_to_payload(error_case: ErrorCase) -> ErrorPayload:
     return {
         "case_id": error_case.case_id,
         "error_type": error_case.error_type,
@@ -161,7 +230,7 @@ def _error_to_payload(error_case: ErrorCase) -> dict[str, object]:
     }
 
 
-def _label_to_payload(label: GroundTruthLabel) -> dict[str, object]:
+def _label_to_payload(label: GroundTruthLabel) -> LabelPayload:
     return {
         "case_id": label.case_id,
         "is_hallucination": label.is_hallucination,
