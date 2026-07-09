@@ -37,13 +37,13 @@
 
 ### Phase 2: Detection And Evaluation
 
-- [ ] Task 3: 实现确定性规则检测器。
+- [x] Task 3: 实现确定性规则检测器。
 - [ ] Task 4: 实现指标计算和错误案例分析。
 
 ### Checkpoint: Detection And Evaluation
 
-- [ ] 每类幻觉至少有一个测试样例。
-- [ ] 非幻觉样本不会被基础规则误报。
+- [x] 每类幻觉至少有一个测试样例。
+- [x] 非幻觉样本不会被基础规则误报。
 - [ ] precision、recall、F1、漏检、误报均有边界测试。
 
 ### Phase 3: Reporting And CLI

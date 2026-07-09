@@ -64,14 +64,14 @@
 
 **Acceptance criteria:**
 
-- [ ] detector 不读取人工真值 detail，不硬编码 ground truth 作为预测结果。
-- [ ] 每个检测结果都给出中文原因和触发规则。
-- [ ] `h12`、`h16` 这类一致回复应保持非幻觉预测。
+- [x] detector 不读取人工真值 detail，不硬编码 ground truth 作为预测结果。
+- [x] 每个检测结果都给出中文原因和触发规则。
+- [x] `h12`、`h16` 这类一致回复应保持非幻觉预测。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_detector.py`
-- [ ] Rule coverage includes at least one case per planned hallucination type.
+- [x] Tests pass: `python -m pytest tests/test_detector.py`
+- [x] Rule coverage includes at least one case per planned hallucination type.
 
 **Dependencies:** Task 1, Task 2
 
