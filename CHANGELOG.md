@@ -8,6 +8,12 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 
 ### Added
 
+- Stage-two planning documents for robustness fixtures, rule explainability, per-type metrics, and report enhancements.
+
+## [0.1.0] - 2026-07-10
+
+### Added
+
 - Project scaffold for an offline customer service hallucination audit pipeline.
 - Python CLI package skeleton with linting, type checking, tests, and CI.
 - Task 0110 source data under `data/`.

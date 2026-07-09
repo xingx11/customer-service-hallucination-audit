@@ -2,7 +2,7 @@
 
 面向客服自动回复场景的幻觉检测评测项目。项目会读取 20 条客服回复、对应知识库和人工标注，自动判断回复是否存在幻觉，输出检测结果、检出率指标和误判分析。
 
-当前状态：第一阶段离线评测流水线已经完成，默认命令可读取随包数据并生成 Markdown/JSON 报告；阶段一交付报告已提交在 `docs/reports/` 下。
+当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；阶段二正在规划鲁棒性与可解释性增强。默认命令可读取随包数据并生成 Markdown/JSON 报告；阶段一交付报告已提交在 `docs/reports/` 下。
 
 ## 为什么选择这个题
 
@@ -132,6 +132,11 @@ total=20, precision=1.000, recall=1.000, f1=1.000
 
 - [Markdown 检测报告](docs/reports/stage-1-report.md)
 - [JSON 结构化报告](docs/reports/stage-1-report.json)
+
+阶段二规划：
+
+- [阶段二实施计划](tasks/stage-2-plan.md)
+- [阶段二任务清单](tasks/stage-2-todo.md)
 
 ## 局限性
 
