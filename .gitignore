@@ -1,4 +1,5 @@
 .agents/
+.codegraph/
 .venv/
 __pycache__/
 *.py[cod]
