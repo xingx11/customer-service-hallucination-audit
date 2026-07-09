@@ -41,13 +41,23 @@ def test_load_audit_dataset_reads_default_data() -> None:
         replies_path=Path("data/replies.json"),
         labels_path=Path("data/ground_truth.json"),
     )
+    replies_by_id = {reply.case_id: reply for reply in dataset.replies}
+    labels_by_id = {label.case_id: label for label in dataset.labels}
 
     assert len(dataset.replies) == 20
     assert len(dataset.labels) == 20
-    assert dataset.replies[0].case_id == "h01"
-    assert dataset.labels[11].case_id == "h12"
-    assert dataset.labels[11].is_hallucination is False
-    assert dataset.labels[11].hallucination_type is None
+    assert set(replies_by_id) == set(labels_by_id)
+    assert "h01" in replies_by_id
+    assert labels_by_id["h12"].is_hallucination is False
+    assert labels_by_id["h12"].hallucination_type is None
+
+
+def test_load_reply_cases_wraps_utf8_decode_errors(tmp_path: Path) -> None:
+    path = tmp_path / "replies.json"
+    path.write_bytes(b"\xff\xfe\xfa")
+
+    with pytest.raises(DataValidationError, match="Cannot decode JSON file"):
+        load_reply_cases(path)
 
 
 def test_load_reply_cases_rejects_missing_required_field(tmp_path: Path) -> None:
