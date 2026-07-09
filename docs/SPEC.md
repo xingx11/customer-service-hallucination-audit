@@ -8,6 +8,15 @@
 
 第一阶段已经完成：默认离线流水线可读取随包数据或显式 JSON 路径，执行确定性规则检测，计算指标，生成 Markdown/JSON 报告，并提交阶段一交付报告。质量门禁以 `scripts/quality.ps1`、pytest、ruff 和 mypy 为准。
 
+## Stage 2 Plan
+
+第二阶段聚焦鲁棒性与可解释性增强：扩展默认数据之外的测试样本，结构化规则元数据，增加规则命中摘要和按类型聚合的指标，并增强 Markdown/JSON 报告解释能力。阶段二仍保持默认离线可复现，不接入真实 LLM API，不新增运行时依赖。
+
+阶段二规划文档：
+
+- `tasks/stage-2-plan.md`
+- `tasks/stage-2-todo.md`
+
 ## Tech Stack
 
 - Python 3.11+
@@ -94,8 +103,16 @@ def calculate_f1(precision: float, recall: float) -> float:
 - README 说明分类体系、检测方法、局限性和 AI 工具使用情况。
 - CI 中 lint、format check、type check、tests 全部通过。
 
+## Stage 2 Success Criteria
+
+- 新增鲁棒性测试样本覆盖同义改写、困难负例、信息遗漏和安全敏感场景。
+- 规则元数据包含稳定 ID、幻觉类型、风险等级和中文说明。
+- 报告能展示规则命中摘要、按类型聚合的评估结果和高风险排序依据。
+- 默认 CLI 仍可离线运行，阶段一默认数据、报告生成和质量门禁不回退。
+
 ## Resolved Decisions And Follow-ups
 
 - 报告格式：阶段一同时生成 Markdown 和 JSON。Markdown 面向人工审阅，JSON 面向自动化消费和 golden-style 验证。
 - LLM/mock 模式：第一阶段不接入真实 LLM，也不要求 mock adapter；核心评测保持离线可复现，adapter 边界留到后续阶段。
 - 最差案例解释：阶段一报告已包含漏检、误报、高风险案例和局限性说明；更详细的中文解释模板作为后续增强项。
+- 阶段二边界：优先增强鲁棒性样本、规则解释和报告指标；真实 LLM 接入仍不进入默认执行路径。
