@@ -56,9 +56,6 @@ def summary() -> MetricsSummary:
         false_positive=1,
         true_negative=0,
         false_negative=1,
-        precision=0.5,
-        recall=0.5,
-        f1=0.5,
     )
 
 
@@ -175,9 +172,6 @@ def test_render_markdown_report_uses_empty_list_placeholder() -> None:
             false_positive=0,
             true_negative=1,
             false_negative=0,
-            precision=0.0,
-            recall=0.0,
-            f1=0.0,
         ),
         (),
     )

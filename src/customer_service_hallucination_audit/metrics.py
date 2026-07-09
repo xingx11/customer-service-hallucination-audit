@@ -11,6 +11,10 @@ from customer_service_hallucination_audit.models import (
     GroundTruthLabel,
     MetricsSummary,
 )
+from customer_service_hallucination_audit.validation import (
+    ensure_matching_ids,
+    ensure_unique_ids,
+)
 
 
 class MetricsValidationError(ValueError):
@@ -42,16 +46,11 @@ def calculate_metrics(
         else:
             true_negative += 1
 
-    precision = _safe_divide(true_positive, true_positive + false_positive)
-    recall = _safe_divide(true_positive, true_positive + false_negative)
     return MetricsSummary(
         true_positive=true_positive,
         false_positive=false_positive,
         true_negative=true_negative,
         false_negative=false_negative,
-        precision=precision,
-        recall=recall,
-        f1=_calculate_f1(precision, recall),
     )
 
 
@@ -103,41 +102,37 @@ def _index_comparable_records(
 
 
 def _index_predictions(predictions: Iterable[DetectionResult]) -> dict[str, DetectionResult]:
-    predictions_by_id: dict[str, DetectionResult] = {}
-    for prediction in predictions:
-        if prediction.case_id in predictions_by_id:
-            raise MetricsValidationError(f"Duplicate prediction id '{prediction.case_id}'")
-        predictions_by_id[prediction.case_id] = prediction
-    return predictions_by_id
+    predictions_tuple = tuple(predictions)
+    ensure_unique_ids(
+        (prediction.case_id for prediction in predictions_tuple),
+        record_name="prediction",
+        exc_type=MetricsValidationError,
+    )
+    return {prediction.case_id: prediction for prediction in predictions_tuple}
 
 
 def _index_labels(labels: Iterable[GroundTruthLabel]) -> dict[str, GroundTruthLabel]:
-    labels_by_id: dict[str, GroundTruthLabel] = {}
-    for label in labels:
-        if label.case_id in labels_by_id:
-            raise MetricsValidationError(f"Duplicate label id '{label.case_id}'")
-        labels_by_id[label.case_id] = label
-    return labels_by_id
+    labels_tuple = tuple(labels)
+    ensure_unique_ids(
+        (label.case_id for label in labels_tuple),
+        record_name="label",
+        exc_type=MetricsValidationError,
+    )
+    return {label.case_id: label for label in labels_tuple}
 
 
 def _ensure_matching_ids(
     predictions_by_id: dict[str, DetectionResult],
     labels_by_id: dict[str, GroundTruthLabel],
 ) -> None:
-    prediction_ids = set(predictions_by_id)
-    label_ids = set(labels_by_id)
-    if prediction_ids == label_ids:
-        return
-
-    details: list[str] = []
-    missing_predictions = sorted(label_ids - prediction_ids)
-    unexpected_predictions = sorted(prediction_ids - label_ids)
-    if missing_predictions:
-        details.append(f"missing predictions for: {', '.join(missing_predictions)}")
-    if unexpected_predictions:
-        details.append(f"unexpected predictions for: {', '.join(unexpected_predictions)}")
-
-    raise MetricsValidationError("Prediction and label IDs must match; " + "; ".join(details))
+    ensure_matching_ids(
+        set(labels_by_id),
+        set(predictions_by_id),
+        error_prefix="Prediction and label IDs must match",
+        missing_actual_label="missing predictions for",
+        unexpected_actual_label="unexpected predictions for",
+        exc_type=MetricsValidationError,
+    )
 
 
 def _classify_error(
@@ -155,18 +150,6 @@ def _classify_error(
     ):
         return "type_mismatch"
     return None
-
-
-def _safe_divide(numerator: int, denominator: int) -> float:
-    if denominator == 0:
-        return 0.0
-    return numerator / denominator
-
-
-def _calculate_f1(precision: float, recall: float) -> float:
-    if precision + recall == 0:
-        return 0.0
-    return 2 * precision * recall / (precision + recall)
 
 
 __all__ = [

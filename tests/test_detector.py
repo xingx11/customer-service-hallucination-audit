@@ -6,9 +6,11 @@ from customer_service_hallucination_audit.detector import detect_replies, detect
 from customer_service_hallucination_audit.io import load_reply_cases
 from customer_service_hallucination_audit.models import HallucinationType, ReplyCase
 
+REPLIES_PATH = Path(__file__).resolve().parents[1] / "data" / "replies.json"
+
 
 def load_default_reply_cases() -> dict[str, ReplyCase]:
-    return {reply.case_id: reply for reply in load_reply_cases(Path("data/replies.json"))}
+    return {reply.case_id: reply for reply in load_reply_cases(REPLIES_PATH)}
 
 
 @pytest.mark.parametrize(
@@ -67,7 +69,7 @@ def test_detect_replies_preserves_input_order() -> None:
 
 
 def test_detect_replies_flags_all_default_risky_cases_except_known_consistent_replies() -> None:
-    replies = load_reply_cases(Path("data/replies.json"))
+    replies = load_reply_cases(REPLIES_PATH)
 
     results = detect_replies(replies)
 
