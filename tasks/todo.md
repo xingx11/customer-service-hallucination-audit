@@ -15,14 +15,14 @@
 
 **Acceptance criteria:**
 
-- [ ] 输入样本包含 `id`、`user_question`、`system_reply`、`knowledge_base`。
-- [ ] 人工标注能表达非幻觉时 `hallucination_type` 为 `None`。
-- [ ] 检测结果包含是否幻觉、类型、原因和触发规则。
+- [x] 输入样本包含 `id`、`user_question`、`system_reply`、`knowledge_base`。
+- [x] 人工标注能表达非幻觉时 `hallucination_type` 为 `None`。
+- [x] 检测结果包含是否幻觉、类型、原因和触发规则。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_models.py`
-- [ ] Type check passes for new module: `python -m mypy src`
+- [x] Tests pass: `python -m pytest tests/test_models.py`
+- [x] Type check passes for new module: `python -m mypy src`
 
 **Dependencies:** Task 0
 
