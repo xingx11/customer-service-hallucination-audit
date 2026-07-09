@@ -25,6 +25,9 @@ cs-hallucination-audit = "customer_service_hallucination_audit.__main__:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+customer_service_hallucination_audit = ["data/*.json"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"

@@ -5,15 +5,17 @@ from __future__ import annotations
 import argparse
 import sys
 from collections.abc import Sequence
+from contextlib import ExitStack
+from importlib.resources import as_file, files
 from pathlib import Path
 
 from customer_service_hallucination_audit import __version__
 from customer_service_hallucination_audit.pipeline import run_audit
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_REPLIES_PATH = PROJECT_ROOT / "data" / "replies.json"
-DEFAULT_GROUND_TRUTH_PATH = PROJECT_ROOT / "data" / "ground_truth.json"
-DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "reports"
+DEFAULT_DATA_PACKAGE = "customer_service_hallucination_audit.data"
+DEFAULT_REPLIES_RESOURCE = "replies.json"
+DEFAULT_GROUND_TRUTH_RESOURCE = "ground_truth.json"
+DEFAULT_OUTPUT_DIR = Path("reports")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -25,14 +27,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--replies",
         type=Path,
-        default=DEFAULT_REPLIES_PATH,
-        help="Path to replies JSON input. Defaults to data/replies.json.",
+        default=None,
+        help="Path to replies JSON input. Defaults to packaged data/replies.json.",
     )
     parser.add_argument(
         "--ground-truth",
         type=Path,
-        default=DEFAULT_GROUND_TRUTH_PATH,
-        help="Path to ground-truth labels JSON input. Defaults to data/ground_truth.json.",
+        default=None,
+        help="Path to ground-truth labels JSON input. Defaults to packaged data/ground_truth.json.",
     )
     parser.add_argument(
         "--output-dir",
@@ -47,11 +49,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
     try:
-        result = run_audit(
-            replies_path=args.replies,
-            labels_path=args.ground_truth,
-            output_dir=args.output_dir,
-        )
+        with ExitStack() as resource_stack:
+            replies_path = args.replies or _resolve_packaged_data_path(
+                DEFAULT_REPLIES_RESOURCE,
+                resource_stack,
+            )
+            labels_path = args.ground_truth or _resolve_packaged_data_path(
+                DEFAULT_GROUND_TRUTH_RESOURCE,
+                resource_stack,
+            )
+            result = run_audit(
+                replies_path=replies_path,
+                labels_path=labels_path,
+                output_dir=args.output_dir,
+            )
     except (OSError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
@@ -66,6 +77,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         f"f1={result.metrics.f1:.3f}"
     )
     return 0
+
+
+def _resolve_packaged_data_path(resource_name: str, resource_stack: ExitStack) -> Path:
+    resource = files(DEFAULT_DATA_PACKAGE).joinpath(resource_name)
+    return resource_stack.enter_context(as_file(resource))
 
 
 if __name__ == "__main__":

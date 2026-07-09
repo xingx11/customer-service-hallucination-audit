@@ -53,7 +53,8 @@ python -m customer_service_hallucination_audit --help
 python -m customer_service_hallucination_audit --output-dir reports
 ```
 
-默认命令会读取 `data/replies.json` 和 `data/ground_truth.json`，并在输出目录写入：
+默认命令会读取随包发布的任务数据（内容与仓库 `data/replies.json` 和
+`data/ground_truth.json` 保持一致），并在输出目录写入：
 
 - `report.md`：面向人工审阅的指标汇总、逐条分类结果和错误分析。
 - `report.json`：面向自动化消费的结构化检测结果、指标和误判分组。
