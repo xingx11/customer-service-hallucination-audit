@@ -12,3 +12,4 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 - Python CLI package skeleton with linting, type checking, tests, and CI.
 - Task 0110 source data under `data/`.
 - End-to-end CLI pipeline that reads the default dataset and writes Markdown/JSON reports.
+- Committed stage-one Markdown and JSON delivery reports under `docs/reports/`.

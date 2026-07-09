@@ -110,4 +110,4 @@ def test_cli_returns_nonzero_for_invalid_input_path(
 def test_default_reports_directory_is_git_ignored() -> None:
     gitignore = (REPO_ROOT / ".gitignore").read_text(encoding="utf-8")
 
-    assert "reports/" in gitignore.splitlines()
+    assert "/reports/" in gitignore.splitlines()
