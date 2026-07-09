@@ -3,14 +3,29 @@ from pathlib import Path
 import pytest
 
 from customer_service_hallucination_audit.detector import detect_replies, detect_reply
-from customer_service_hallucination_audit.io import load_reply_cases
-from customer_service_hallucination_audit.models import HallucinationType, ReplyCase
+from customer_service_hallucination_audit.io import load_audit_dataset, load_reply_cases
+from customer_service_hallucination_audit.models import (
+    HALLUCINATION_TYPES,
+    AuditDataset,
+    HallucinationType,
+    ReplyCase,
+)
 
 REPLIES_PATH = Path(__file__).resolve().parents[1] / "data" / "replies.json"
+FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
+STAGE_2_ROBUSTNESS_REPLIES_PATH = FIXTURES_DIR / "stage_2_robustness_replies.json"
+STAGE_2_ROBUSTNESS_GROUND_TRUTH_PATH = FIXTURES_DIR / "stage_2_robustness_ground_truth.json"
 
 
 def load_default_reply_cases() -> dict[str, ReplyCase]:
     return {reply.case_id: reply for reply in load_reply_cases(REPLIES_PATH)}
+
+
+def load_stage_2_robustness_dataset() -> AuditDataset:
+    return load_audit_dataset(
+        replies_path=STAGE_2_ROBUSTNESS_REPLIES_PATH,
+        labels_path=STAGE_2_ROBUSTNESS_GROUND_TRUTH_PATH,
+    )
 
 
 @pytest.mark.parametrize(
@@ -92,3 +107,27 @@ def test_detect_reply_uses_content_rules_not_case_ids() -> None:
     assert result.is_hallucination is True
     assert result.hallucination_type == "能力越界"
     assert result.rule_ids == ("capability.logistics_lookup",)
+
+
+def test_stage_2_robustness_fixture_covers_planned_blind_spots() -> None:
+    dataset = load_stage_2_robustness_dataset()
+
+    positive_types = {
+        label.hallucination_type
+        for label in dataset.labels
+        if label.is_hallucination and label.hallucination_type is not None
+    }
+    negative_count = sum(not label.is_hallucination for label in dataset.labels)
+    details = "\n".join(label.detail for label in dataset.labels)
+
+    assert len(dataset.replies) == len(dataset.labels)
+    assert set(reply.case_id for reply in dataset.replies) == {
+        label.case_id for label in dataset.labels
+    }
+    assert len(positive_types) >= 6
+    assert positive_types <= set(HALLUCINATION_TYPES)
+    assert negative_count >= 3
+    assert all(label.detail.startswith(("盲区：", "困难负例：")) for label in dataset.labels)
+    assert "同义改写" in details
+    assert "信息遗漏" in details
+    assert "安全敏感" in details

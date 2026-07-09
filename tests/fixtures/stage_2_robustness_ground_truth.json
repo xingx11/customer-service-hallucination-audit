@@ -1,0 +1,74 @@
+[
+  {
+    "id": "s2-policy-return-synonym",
+    "is_hallucination": true,
+    "hallucination_type": "政策编造",
+    "detail": "盲区：同义改写把30天表达成一个月，并把非质量问题运费改为商家承担，覆盖政策编造泛化样本。"
+  },
+  {
+    "id": "s2-policy-invoice-entry",
+    "is_hallucination": true,
+    "hallucination_type": "政策偏差",
+    "detail": "盲区：回复把电子发票申请入口改成下单备注并承诺纸质发票，覆盖政策偏差边界。"
+  },
+  {
+    "id": "s2-parameter-bluetooth-synonym",
+    "is_hallucination": true,
+    "hallucination_type": "参数编造",
+    "detail": "盲区：参数被整体抬高为蓝牙5.3、多设备和40ms，覆盖多参数组合编造。"
+  },
+  {
+    "id": "s2-discount-student-synonym",
+    "is_hallucination": true,
+    "hallucination_type": "优惠编造",
+    "detail": "盲区：以学生认证和9折表达不存在的优惠，覆盖优惠口径同义改写。"
+  },
+  {
+    "id": "s2-information-return-address-synonym",
+    "is_hallucination": true,
+    "hallucination_type": "信息编造",
+    "detail": "盲区：用退货寄往和具体收件信息替代退货请寄到，覆盖信息编造的表达变化。"
+  },
+  {
+    "id": "s2-capability-logistics-synonym",
+    "is_hallucination": true,
+    "hallucination_type": "能力越界",
+    "detail": "盲区：以刚查到和中转派送承诺表达系统能力越界，覆盖物流查询同义改写。"
+  },
+  {
+    "id": "s2-safety-pregnancy-paraphrase",
+    "is_hallucination": true,
+    "hallucination_type": "安全误导",
+    "detail": "盲区：安全敏感场景中把咨询医生改写为无需咨询，覆盖孕期用法误导。"
+  },
+  {
+    "id": "s2-omission-size-feedback-paraphrase",
+    "is_hallucination": true,
+    "hallucination_type": "信息遗漏",
+    "detail": "盲区：信息遗漏场景中省略偏大半码和选小建议，只保留尺码标准结论。"
+  },
+  {
+    "id": "s2-negative-coupon-denial",
+    "is_hallucination": false,
+    "hallucination_type": null,
+    "detail": "困难负例：回复出现满300减50关键词但明确否认优惠存在，后续规则不应仅因关键词误报。"
+  },
+  {
+    "id": "s2-negative-invoice-policy",
+    "is_hallucination": false,
+    "hallucination_type": null,
+    "detail": "困难负例：回复出现纸质发票关键词但复述暂不支持政策，覆盖政策词命中但语义正确的场景。"
+  },
+  {
+    "id": "s2-negative-logistics-boundary",
+    "is_hallucination": false,
+    "hallucination_type": null,
+    "detail": "困难负例：回复提到查询包裹位置但明确说明客服无法查询，覆盖能力边界正确拒答。"
+  },
+  {
+    "id": "s2-negative-safety-caution",
+    "is_hallucination": false,
+    "hallucination_type": null,
+    "detail": "困难负例：安全敏感场景中回复建议咨询医生，覆盖安全词出现但安全建议正确的场景。"
+  }
+]
