@@ -4,6 +4,10 @@
 
 实现一个客服回复幻觉检测工具，对 0110 任务的 20 条回复逐条标注是否存在幻觉、幻觉类型和原因，并用人工标注计算检出率。最终交付代码仓库、README、运行报告和质量验证结果。
 
+## Stage 1 Status
+
+第一阶段已经完成：默认离线流水线可读取随包数据或显式 JSON 路径，执行确定性规则检测，计算指标，生成 Markdown/JSON 报告，并提交阶段一交付报告。质量门禁以 `scripts/quality.ps1`、pytest、ruff 和 mypy 为准。
+
 ## Tech Stack
 
 - Python 3.11+
@@ -90,8 +94,8 @@ def calculate_f1(precision: float, recall: float) -> float:
 - README 说明分类体系、检测方法、局限性和 AI 工具使用情况。
 - CI 中 lint、format check、type check、tests 全部通过。
 
-## Open Questions
+## Resolved Decisions And Follow-ups
 
-- 最终报告输出格式采用 Markdown、JSON，还是两者都生成？
-- 是否需要加入可选 LLM/mock 模式来展示扩展能力？
-- 是否需要为最差案例生成更详细的中文解释模板？
+- 报告格式：阶段一同时生成 Markdown 和 JSON。Markdown 面向人工审阅，JSON 面向自动化消费和 golden-style 验证。
+- LLM/mock 模式：第一阶段不接入真实 LLM，也不要求 mock adapter；核心评测保持离线可复现，adapter 边界留到后续阶段。
+- 最差案例解释：阶段一报告已包含漏检、误报、高风险案例和局限性说明；更详细的中文解释模板作为后续增强项。

@@ -7,7 +7,7 @@
   - Verify: 文档文件存在，任务清单可直接指导后续开发。
   - Files: `docs/DEVELOPMENT.md`, `tasks/plan.md`, `tasks/todo.md`, `.gitignore`
 
-## 待实施任务
+## 任务明细
 
 ## Task 1: 定义领域模型和类型边界
 
@@ -139,14 +139,14 @@
 
 **Acceptance criteria:**
 
-- [ ] `python -m customer_service_hallucination_audit --help` 展示输入和输出参数。
-- [ ] 默认参数读取 `data/replies.json` 和 `data/ground_truth.json`。
-- [ ] 指定输出目录后生成报告文件，并在终端输出摘要。
+- [x] `python -m customer_service_hallucination_audit --help` 展示输入和输出参数。
+- [x] 默认参数读取随包发布的 `replies.json` 和 `ground_truth.json`。
+- [x] 指定输出目录后生成报告文件，并在终端输出摘要。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_cli.py tests/test_pipeline.py`
-- [ ] Manual check: `python -m customer_service_hallucination_audit --output-dir reports`
+- [x] Tests pass: `python -m pytest tests/test_cli.py tests/test_pipeline.py`
+- [x] Manual check: `python -m customer_service_hallucination_audit --output-dir reports`
 
 **Dependencies:** Task 2, Task 3, Task 4, Task 5
 
@@ -165,14 +165,14 @@
 
 **Acceptance criteria:**
 
-- [ ] README 中的命令与 CLI 实际参数一致。
-- [ ] README 解释分类体系和确定性规则的局限性。
-- [ ] SPEC 中的开放问题被回答或保留为明确后续项。
+- [x] README 中的命令与 CLI 实际参数一致。
+- [x] README 解释分类体系和确定性规则的局限性。
+- [x] SPEC 中的开放问题被回答或保留为明确后续项。
 
 **Verification:**
 
-- [ ] Markdown review confirms no outdated command or behavior description.
-- [ ] Pre-commit markdown hooks pass.
+- [x] Markdown review confirms no outdated command or behavior description.
+- [x] Pre-commit markdown hooks pass.
 
 **Dependencies:** Task 6
 
@@ -190,14 +190,14 @@
 
 **Acceptance criteria:**
 
-- [ ] ruff check、ruff format check、mypy、pytest 全部通过。
-- [ ] 无缓存、虚拟环境、CodeGraph 数据库或构建产物进入待提交变更。
-- [ ] 自审记录确认没有硬编码人工真值、没有新增不可复现依赖。
+- [x] ruff check、ruff format check、mypy、pytest 全部通过。
+- [x] 无缓存、虚拟环境、CodeGraph 数据库或构建产物进入待提交变更。
+- [x] 自审记录确认没有硬编码人工真值、没有新增不可复现依赖。
 
 **Verification:**
 
-- [ ] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1`
-- [ ] `git status --short`
+- [x] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1`
+- [x] `git status --short`
 
 **Dependencies:** Task 1, Task 2, Task 3, Task 4, Task 5, Task 6, Task 7
 
