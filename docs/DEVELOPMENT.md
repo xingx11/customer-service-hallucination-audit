@@ -4,11 +4,11 @@
 
 ## 当前阶段判断
 
-项目处于第一阶段：从“脚手架可运行”推进到“核心离线评测流水线可用”。当前已经具备项目规格、数据集、Python CLI 包骨架、测试骨架、CI、pre-commit、质量脚本和 ADR；尚未实现数据解析、规则检测、指标计算、报告生成和完整 CLI 参数。
+项目处于第一阶段收尾：核心离线评测流水线已经可通过 CLI 运行。当前已经具备项目规格、数据集、Python CLI、JSON 解析校验、确定性规则检测、指标计算、Markdown/JSON 报告生成、测试、CI、pre-commit、质量脚本和 ADR。
 
 第一阶段的完成标准是：
 
-- 能读取 `data/replies.json` 和 `data/ground_truth.json`。
+- 能读取随包发布的默认数据，也能显式读取 `data/replies.json` 和 `data/ground_truth.json`。
 - 能为每条样本输出检测标签、幻觉类型和原因。
 - 能计算 precision、recall、F1、false positive、false negative。
 - 能生成可审阅的报告，解释漏检、误报和高风险案例。
@@ -21,7 +21,7 @@
 - 核心约束：默认离线可复现，不接入真实 LLM API，不新增运行时依赖。
 - 数据闭环：`data/replies.json` 和 `data/ground_truth.json` 均为 20 条，ID 为 `h01` 到 `h20`。
 - 标注分布：18 条幻觉、2 条非幻觉，覆盖政策编造、政策偏差、参数编造、优惠编造、信息编造、能力越界、安全误导、信息遗漏。
-- 当前源码：`src/customer_service_hallucination_audit/__main__.py` 仅提供 `--version` 和基础 parser；`tests/test_scaffold.py` 仅验证版本和程序名。
+- 当前源码：核心模型、JSON 读取、确定性规则检测、指标计算、报告生成和 CLI 端到端流水线已经拆分到独立模块；默认数据也随包发布，安装后无需源码根目录即可运行。
 - 当前工具：`scripts/quality.ps1` 依次运行 ruff、format check、mypy、pytest；CI 还会运行 pre-commit。
 - 当前本地状态：CodeGraph 已初始化，`.codegraph/` 是本地索引目录，不应提交。
 
@@ -72,7 +72,7 @@
 - 规则检测：每类幻觉至少有一个正向样例，`h12`、`h16` 这类非幻觉样本至少有稳定的负向样例。
 - 指标计算：覆盖完美命中、全错、空预测、无正例、无负例，避免除零。
 - 报告生成：使用固定输入做 golden-style 结构测试，关注字段完整性和排序稳定。
-- CLI 集成：验证默认路径、显式路径、输出目录、`--help` 和错误路径。
+- CLI 集成：验证随包默认数据、显式路径、输出目录、`--help` 和错误路径。
 
 ## 报告格式建议
 
@@ -91,7 +91,7 @@
 | 中文规则边界模糊 | 类型分类可能不稳定 | 每条检测结果输出触发原因，README 解释分类取舍 |
 | 数据 ID 不一致 | 指标错误或报告漏样本 | loader 阶段强校验 replies 和 ground truth 的 ID 集合 |
 | 指标除零 | 空样本或极端样本崩溃 | metrics 单元测试覆盖边界并返回 0.0 |
-| 生成缓存误提交 | 仓库噪声、CI 风险 | `.gitignore` 忽略 `.codegraph/`、缓存和构建产物 |
+| 生成缓存误提交 | 仓库噪声、CI 风险 | `.gitignore` 忽略 `.codegraph/`、`reports/`、缓存和构建产物 |
 
 ## 当前进度
 
@@ -104,15 +104,14 @@
 - 基础测试、pre-commit、CI、质量脚本
 - 任务数据和人工真值文件
 - CodeGraph 本地索引初始化
-
-待完成：
-
 - 领域模型和 JSON 解析校验
 - 确定性规则检测器
 - 指标计算和错误分析
 - Markdown/JSON 报告生成
 - CLI 参数和端到端流水线
-- README/SPEC 与实际行为同步
+
+待完成：
+
 - 全量质量门禁和自审
 
 ## 开发时的默认命令

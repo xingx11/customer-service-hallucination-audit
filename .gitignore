@@ -12,6 +12,7 @@ build/
 *.egg-info/
 .coverage
 htmlcov/
+reports/
 .env
 .env.*
 !.env.example

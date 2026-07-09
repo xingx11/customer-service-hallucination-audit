@@ -50,6 +50,22 @@ python -m venv .venv
 python -m pip install -e ".[dev]"
 pre-commit install
 python -m customer_service_hallucination_audit --help
+python -m customer_service_hallucination_audit --output-dir reports
+```
+
+默认命令会读取随包发布的任务数据（内容与仓库 `data/replies.json` 和
+`data/ground_truth.json` 保持一致），并在输出目录写入：
+
+- `report.md`：面向人工审阅的指标汇总、逐条分类结果和错误分析。
+- `report.json`：面向自动化消费的结构化检测结果、指标和误判分组。
+
+也可以显式指定输入文件：
+
+```bash
+python -m customer_service_hallucination_audit ^
+  --replies data/replies.json ^
+  --ground-truth data/ground_truth.json ^
+  --output-dir reports
 ```
 
 如需恢复项目级 AI 辅助技能，可运行：
@@ -81,12 +97,18 @@ test: 覆盖指标计算边界场景
 
 本地已提供 `.gitmessage` 作为提交模板。
 
-## 评测指标计划
+## 当前评测输出
 
 - 幻觉检出：是否识别出回复与知识库矛盾、无依据承诺或能力越界。
 - 类型分类：政策编造、参数编造、能力越界、优惠编造、信息编造、安全误导、信息遗漏等。
 - 检测质量：precision、recall、F1、false positive、false negative。
 - 案例分析：列出漏检、误报和高风险案例，解释规则边界。
+
+在当前默认 20 条样本上，确定性规则检测器的二分类指标为：
+
+```text
+total=20, precision=1.000, recall=1.000, f1=1.000
+```
 
 ## 交付物
 

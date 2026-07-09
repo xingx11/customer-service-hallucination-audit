@@ -11,3 +11,4 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 - Project scaffold for an offline customer service hallucination audit pipeline.
 - Python CLI package skeleton with linting, type checking, tests, and CI.
 - Task 0110 source data under `data/`.
+- End-to-end CLI pipeline that reads the default dataset and writes Markdown/JSON reports.
