@@ -114,14 +114,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Markdown 包含总体指标、分类结果表、漏检/误报列表和局限性说明。
-- [ ] JSON 包含 `results`、`metrics`、`false_positives`、`false_negatives`。
-- [ ] 输出顺序稳定，便于 golden-style 测试。
+- [x] Markdown 包含总体指标、分类结果表、漏检/误报列表和局限性说明。
+- [x] JSON 包含 `results`、`metrics`、`false_positives`、`false_negatives`。
+- [x] 输出顺序稳定，便于 golden-style 测试。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_reporting.py`
-- [ ] Golden-style assertions confirm required sections and keys exist.
+- [x] Tests pass: `python -m pytest tests/test_reporting.py`
+- [x] Golden-style assertions confirm required sections and keys exist.
 
 **Dependencies:** Task 3, Task 4
 
