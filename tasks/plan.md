@@ -21,7 +21,7 @@
 
 ### Phase 2: Quality And Install Smoke
 
-- [ ] Task 26: 最终质量门禁与安装/CLI smoke test。
+- [x] Task 26: 最终质量门禁与安装/CLI smoke test。
 
 ### Phase 3: v1.0.0 Release Closeout
 
@@ -31,7 +31,7 @@
 
 - [x] Release Scope Locked: 阶段四范围固定为最终交付准备，不再新增 detector 能力。
 - [x] Documentation Ready: README、SPEC、CHANGELOG、开发文档和交付报告链接一致。
-- [ ] Release Gate Passed: 质量门禁、pre-commit、安装和 CLI smoke test 均通过。
+- [x] Release Gate Passed: 质量门禁、pre-commit、安装和 CLI smoke test 均通过。
 - [ ] v1.0.0 Ready: 版本、CHANGELOG、最终报告和打标签步骤准备完成。
 
 ## Boundaries

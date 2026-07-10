@@ -59,15 +59,16 @@ v1.0.0  阶段四：最终交付收尾，进行中
 
 ### Phase 2: Quality And Install Smoke
 
-- [ ] Task 26: 最终质量门禁与安装/CLI smoke test。
+- [x] Task 26: 最终质量门禁与安装/CLI smoke test。
 
 ### Checkpoint: Release Gate Passed
 
-- [ ] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1` 通过。
-- [ ] `pre-commit run --all-files` 通过。
-- [ ] `python -m customer_service_hallucination_audit --help` 和 `--version` 可运行。
-- [ ] 默认 deterministic 和 mock CLI smoke test 可生成报告。
-- [ ] `llm` 缺配置路径返回清晰错误，且不影响默认质量门禁。
+- [x] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1` 通过。
+- [x] `pre-commit run --all-files` 通过。
+- [x] `python -m customer_service_hallucination_audit --help` 和 `--version` 可运行。
+- [x] 默认 deterministic 和 mock CLI smoke test 可生成报告。
+- [x] `llm` 缺配置路径返回清晰错误，且不影响默认质量门禁。
+- [x] `docs/QUALITY_SMOKE.md` 记录安装、质量门禁和 CLI smoke test 结果。
 
 ### Phase 3: v1.0.0 Release Closeout
 
@@ -111,3 +112,9 @@ v1.0.0  阶段四：最终交付收尾，进行中
 - 最终文档复核结果记录在 `docs/DELIVERY_REVIEW.md`，作为 Task 26 和 Task 27 的交付前上下文。
 - 阶段四最终 Markdown/JSON 报告留到 Task 27 生成；Task 25 只验证阶段一到阶段三已提交报告和阶段四文档链接。
 - 当前仍不新增 `.env.example`，因为 README、SPEC 和发布检查清单已经明确项目不自动读取 `.env`。
+
+## Resolved Task 26 Decisions
+
+- 最终质量门禁和 CLI smoke test 结果记录在 `docs/QUALITY_SMOKE.md`，作为 Task 27 发布收尾的验证依据。
+- CLI smoke test 使用临时输出目录运行并清理生成物，避免提交 `reports/` 或临时报告。
+- `llm` detector 只验证缺少环境变量时的明确失败路径；真实 LLM 调用仍不进入默认质量门禁。
