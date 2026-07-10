@@ -157,14 +157,14 @@
 
 **Acceptance criteria:**
 
-- [ ] Markdown 报告包含类型表现和规则命中统计。
-- [ ] JSON 报告包含机器可读的类型统计和规则统计。
-- [ ] 报告局限性说明更新样本规模和规则泛化边界。
+- [x] Markdown 报告包含类型表现和规则命中统计。
+- [x] JSON 报告包含机器可读的类型统计和规则统计。
+- [x] 报告局限性说明更新样本规模和规则泛化边界。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_reporting.py tests/test_delivery_reports.py`
-- [ ] Golden-style assertions confirm 新增 sections and keys exist.
+- [x] Tests pass: `python -m pytest tests/test_reporting.py tests/test_delivery_reports.py`
+- [x] Golden-style assertions confirm 新增 sections and keys exist.
 
 **Dependencies:** Task 13, Task 14
 

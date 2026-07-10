@@ -32,11 +32,15 @@ def test_run_audit_writes_markdown_and_json_reports(tmp_path: Path) -> None:
     assert result.markdown_path == tmp_path / "report.md"
     assert result.json_path == tmp_path / "report.json"
     assert result.metrics.total == 20
+    assert len(result.type_metrics) == 8
+    assert result.type_metrics[0].hallucination_type == "政策编造"
     assert len(result.results) == 20
     assert result.markdown_path.read_text(encoding="utf-8").startswith("# 客服回复幻觉检测报告\n")
 
     payload = json.loads(result.json_path.read_text(encoding="utf-8"))
     assert payload["metrics"]["total"] == 20
+    assert len(payload["type_metrics"]) == 8
+    assert payload["type_metrics"][0]["hallucination_type"] == "政策编造"
     assert payload["results"][0]["case_id"] == "h01"
     assert payload["rule_hit_summary"][0]["rule_id"]
     assert payload["rule_hit_summary"][0]["hit_count"] >= 1

@@ -10,6 +10,7 @@ from customer_service_hallucination_audit.models import (
     GroundTruthLabel,
     HallucinationType,
     MetricsSummary,
+    TypeMetricsSummary,
 )
 from customer_service_hallucination_audit.reporting import (
     build_report_payload,
@@ -56,6 +57,32 @@ def summary() -> MetricsSummary:
         false_positive=1,
         true_negative=0,
         false_negative=1,
+    )
+
+
+def sample_type_metrics() -> tuple[TypeMetricsSummary, ...]:
+    return (
+        TypeMetricsSummary(
+            hallucination_type="政策编造",
+            label_count=1,
+            predicted_count=1,
+            true_positive_count=0,
+            mismatch_count=1,
+        ),
+        TypeMetricsSummary(
+            hallucination_type="优惠编造",
+            label_count=0,
+            predicted_count=1,
+            true_positive_count=0,
+            mismatch_count=1,
+        ),
+        TypeMetricsSummary(
+            hallucination_type="安全误导",
+            label_count=1,
+            predicted_count=0,
+            true_positive_count=0,
+            mismatch_count=1,
+        ),
     )
 
 
@@ -118,15 +145,22 @@ def sample_errors() -> tuple[ErrorCase, ...]:
 
 
 def test_build_report_payload_contains_stable_json_sections() -> None:
-    payload = build_report_payload(sample_results(), summary(), sample_errors())
+    payload = build_report_payload(
+        sample_results(),
+        summary(),
+        sample_type_metrics(),
+        sample_errors(),
+    )
 
     assert tuple(payload) == (
         "metrics",
+        "type_metrics",
         "results",
         "rule_hit_summary",
         "false_positives",
         "false_negatives",
         "type_mismatches",
+        "high_risk_rationale",
         "high_risk_cases",
         "limitations",
     )
@@ -141,10 +175,38 @@ def test_build_report_payload_contains_stable_json_sections() -> None:
         "f1": 0.5,
         "accuracy": pytest.approx(1 / 3),
     }
+    assert payload["type_metrics"] == [
+        {
+            "hallucination_type": "政策编造",
+            "label_count": 1,
+            "predicted_count": 1,
+            "true_positive_count": 0,
+            "mismatch_count": 1,
+        },
+        {
+            "hallucination_type": "优惠编造",
+            "label_count": 0,
+            "predicted_count": 1,
+            "true_positive_count": 0,
+            "mismatch_count": 1,
+        },
+        {
+            "hallucination_type": "安全误导",
+            "label_count": 1,
+            "predicted_count": 0,
+            "true_positive_count": 0,
+            "mismatch_count": 1,
+        },
+    ]
     assert [item["case_id"] for item in payload["results"]] == ["h01", "h02", "h03"]
     assert [item["case_id"] for item in payload["false_positives"]] == ["h02"]
     assert [item["case_id"] for item in payload["false_negatives"]] == ["h03"]
     assert [item["case_id"] for item in payload["type_mismatches"]] == ["h01"]
+    assert payload["high_risk_rationale"] == [
+        "纳入所有漏检案例。",
+        "纳入人工标注或预测类型为安全误导的错误案例。",
+        "输出按样本 ID 稳定排序，便于复现和 diff 审阅。",
+    ]
     assert [item["case_id"] for item in payload["high_risk_cases"]] == ["h03"]
     assert payload["rule_hit_summary"] == [
         {
@@ -193,7 +255,7 @@ def test_build_report_payload_sorts_rule_hit_summary_by_frequency_then_risk() ->
         ),
     )
 
-    payload = build_report_payload(results, summary(), ())
+    payload = build_report_payload(results, summary(), sample_type_metrics(), ())
 
     assert [item["rule_id"] for item in payload["rule_hit_summary"]] == [
         "discount.coupon_fabrication",
@@ -204,10 +266,16 @@ def test_build_report_payload_sorts_rule_hit_summary_by_frequency_then_risk() ->
 
 
 def test_render_json_report_outputs_deterministic_utf8_json() -> None:
-    report = render_json_report(sample_results(), summary(), sample_errors())
+    report = render_json_report(
+        sample_results(),
+        summary(),
+        sample_type_metrics(),
+        sample_errors(),
+    )
 
     assert report.endswith("\n")
     decoded = json.loads(report)
+    assert decoded["type_metrics"][0]["hallucination_type"] == "政策编造"
     assert decoded["results"][0]["case_id"] == "h01"
     assert decoded["rule_hit_summary"][0]["risk_level"] == "high"
     assert decoded["false_negatives"][0]["expected"]["hallucination_type"] == "安全误导"
@@ -215,11 +283,19 @@ def test_render_json_report_outputs_deterministic_utf8_json() -> None:
 
 
 def test_render_markdown_report_contains_required_sections_and_tables() -> None:
-    report = render_markdown_report(sample_results(), summary(), sample_errors())
+    report = render_markdown_report(
+        sample_results(),
+        summary(),
+        sample_type_metrics(),
+        sample_errors(),
+    )
 
     assert report.startswith("# 客服回复幻觉检测报告\n")
     assert "## 总体指标" in report
     assert "| Precision | 0.500 |" in report
+    assert "## 类型表现" in report
+    assert "| 幻觉类型 | 标注数 | 预测数 | 命中数 | 错配数 |" in report
+    assert "| 政策编造 | 1 | 1 | 0 | 1 |" in report
     assert "## 分类结果" in report
     assert "| h01 | 是 | 政策编造 | policy.return_window_fabrication | 退货规则命中 |" in report
     assert "## 规则命中摘要" in report
@@ -235,6 +311,8 @@ def test_render_markdown_report_contains_required_sections_and_tables() -> None:
     assert "## 类型错误" in report
     assert "- h01: 期望 政策编造，预测 信息编造。" in report
     assert "## 高风险案例" in report
+    assert "- 纳入所有漏检案例。" in report
+    assert "- 输出按样本 ID 稳定排序，便于复现和 diff 审阅。" in report
     assert "## 局限性" in report
 
 
@@ -248,9 +326,11 @@ def test_render_markdown_report_uses_empty_list_placeholder() -> None:
             false_negative=0,
         ),
         (),
+        (),
     )
 
     assert "## 漏检\n\n- 无" in report
     assert "## 误报\n\n- 无" in report
     assert "## 类型错误\n\n- 无" in report
-    assert "## 高风险案例\n\n- 无" in report
+    assert "## 高风险案例\n\n筛选与排序依据：" in report
+    assert "- 输出按样本 ID 稳定排序，便于复现和 diff 审阅。\n\n- 无" in report
