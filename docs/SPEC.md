@@ -19,17 +19,17 @@
 - `tasks/stage-2-plan.md`
 - `tasks/stage-2-todo.md`
 
-## Stage 3 Plan
+## Stage 3 Status
 
-第三阶段聚焦 Adapter + 最小 LLM 接入：先对齐 `v0.2.0` 标签后的版本元数据与发布记录，再定义 detector adapter contract，把现有规则检测器包装为默认 `deterministic` adapter，增加离线 `mock` adapter，并提供显式 opt-in 的 `llm` adapter。当前已完成 `deterministic`、`mock` 与 `llm` 三条 detector 路径，也已定义 LLM prompt、输出 schema、离线解析校验和缺配置错误路径。阶段三仍保持默认离线可复现，不新增运行时依赖，不改变默认 `data/replies.json` 和 `data/ground_truth.json` 字段格式。
+第三阶段聚焦 Adapter + 最小 LLM 接入：已对齐 `v0.2.0` 标签后的版本元数据与发布记录，定义 detector adapter contract，把现有规则检测器包装为默认 `deterministic` adapter，增加离线 `mock` adapter，并提供显式 opt-in 的 `llm` adapter。当前已完成 `deterministic`、`mock` 与 `llm` 三条 detector 路径，也已定义 LLM prompt、输出 schema、离线解析校验和缺配置错误路径。阶段三保持默认离线可复现，不新增运行时依赖，不改变默认 `data/replies.json` 和 `data/ground_truth.json` 字段格式。阶段三交付报告位于 `docs/reports/stage-3-report.md` 和 `docs/reports/stage-3-report.json`。
 
 项目后续阶段收敛为：
 
 ```text
 v0.1.0  阶段一：离线评测 MVP，已完成
 v0.2.0  阶段二：鲁棒性与可解释性，已完成
-v0.3.0  阶段三：Adapter + 最小 LLM 接入，当前重点
-v1.0.0  阶段四：最终交付收尾
+v0.3.0  阶段三：Adapter + 最小 LLM 接入，已完成
+v1.0.0  阶段四：最终交付收尾，下一步
 ```
 
 阶段三规划文档：

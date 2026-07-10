@@ -172,15 +172,15 @@
 
 **Acceptance criteria:**
 
-- [ ] README/SPEC/CHANGELOG/开发文档说明阶段三 detector 选择、LLM opt-in 边界和局限性。
-- [ ] 阶段三 deterministic 交付报告已提交并有一致性测试。
-- [ ] 完整质量门禁通过，默认路径不依赖真实 LLM。
+- [x] README/SPEC/CHANGELOG/开发文档说明阶段三 detector 选择、LLM opt-in 边界和局限性。
+- [x] 阶段三 deterministic 交付报告已提交并有一致性测试。
+- [x] 完整质量门禁通过，默认路径不依赖真实 LLM。
 
 **Verification:**
 
-- [ ] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1`
-- [ ] `pre-commit run --all-files`
-- [ ] `git status --short`
+- [x] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1`
+- [x] `pre-commit run --all-files`
+- [x] `git status --short`
 
 **Dependencies:** Task 18-22
 

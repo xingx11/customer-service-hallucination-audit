@@ -11,8 +11,8 @@
 ```text
 v0.1.0  阶段一：离线评测 MVP，已完成
 v0.2.0  阶段二：鲁棒性与可解释性，已完成
-v0.3.0  阶段三：Adapter + 最小 LLM 接入，当前重点
-v1.0.0  阶段四：最终交付收尾
+v0.3.0  阶段三：Adapter + 最小 LLM 接入，已完成
+v1.0.0  阶段四：最终交付收尾，下一步
 ```
 
 ## Assumptions
@@ -66,16 +66,16 @@ v1.0.0  阶段四：最终交付收尾
 ### Phase 3: Optional LLM Path And Delivery
 
 - [x] Task 22: 增加可选 LLM adapter 与 CLI detector 选择。
-- [ ] Task 23: 完成第三阶段交付报告、文档和质量门禁。
+- [x] Task 23: 完成第三阶段交付报告、文档和质量门禁。
 
 ### Checkpoint: Stage 3 Complete
 
 - [x] 默认命令仍离线可复现。
 - [x] `--detector deterministic`、`--detector mock`、`--detector llm` 路径清晰。
 - [x] LLM 路径缺少配置时失败信息可理解，且不会影响默认 CI。
-- [ ] README、SPEC、CHANGELOG、开发文档和阶段三交付报告已同步。
-- [ ] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1` 通过。
-- [ ] `pre-commit run --all-files` 通过。
+- [x] README、SPEC、CHANGELOG、开发文档和阶段三交付报告已同步。
+- [x] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1` 通过。
+- [x] `pre-commit run --all-files` 通过。
 
 ## Out Of Scope For Stage 3
 
@@ -96,7 +96,7 @@ v1.0.0  阶段四：最终交付收尾
 | 为了 LLM 过度抽象 | 开发变慢，交付价值滞后 | 只做 deterministic/mock/llm 三条最小路径 |
 | provider API 细节变化 | 实现失败或难维护 | 实现前查官方文档；adapter 边界隔离 provider 细节 |
 
-## Open Questions
+## Resolved Task 23 Decisions
 
-- 阶段三交付报告是否只提交 deterministic 报告，还是同时提交 mock/LLM 示例报告？
-- LLM 返回 `rule_ids` 是使用 `llm.*` 虚拟规则 ID，还是允许为空并只在 `reasons` 中说明？
+- 阶段三交付报告提交 deterministic 报告；mock/LLM 示例报告不进入默认交付物。
+- LLM 返回 `rule_ids` 允许使用 `llm.*` 虚拟规则 ID，也允许为空；核心解释保留在 `reasons` 中。

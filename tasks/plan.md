@@ -7,7 +7,7 @@
 
 ## Overview
 
-第三阶段从 `v0.2.0` 标签继续推进，目标是在保持默认离线可复现的前提下，让同一套 pipeline 可以运行 `deterministic`、`mock`、`llm` 三种 detector。第三阶段完成后打 `v0.3.0`，随后只保留最终交付收尾阶段，对应 `v1.0.0`。
+第三阶段从 `v0.2.0` 标签继续推进，目标是在保持默认离线可复现的前提下，让同一套 pipeline 可以运行 `deterministic`、`mock`、`llm` 三种 detector。当前第三阶段已完成，合并后可打 `v0.3.0` 标签，随后只保留最终交付收尾阶段，对应 `v1.0.0`。
 
 ## Task List
 
@@ -28,13 +28,13 @@
 ### Phase 3: Optional LLM Path And Delivery
 
 - [x] Task 22: 增加可选 LLM adapter 与 CLI detector 选择。
-- [ ] Task 23: 完成第三阶段交付报告、文档和质量门禁。
+- [x] Task 23: 完成第三阶段交付报告、文档和质量门禁。
 
 ## Checkpoints
 
 - [x] Adapter Foundation: CLI/package 版本策略清晰，pipeline 可接收不同 detector。
 - [x] Offline Confidence: deterministic 和 mock 路径均可离线端到端运行。
-- [ ] Stage 3 Complete: LLM 路径显式 opt-in，默认质量门禁不依赖真实 LLM，待 Task 23 收尾。
+- [x] Stage 3 Complete: LLM 路径显式 opt-in，默认质量门禁不依赖真实 LLM。
 
 ## Boundaries
 
