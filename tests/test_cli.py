@@ -16,7 +16,7 @@ from customer_service_hallucination_audit.detector import (
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REPLIES_PATH = REPO_ROOT / "data" / "replies.json"
 GROUND_TRUTH_PATH = REPO_ROOT / "data" / "ground_truth.json"
-EXPECTED_VERSION = "0.3.0"
+EXPECTED_VERSION = "1.0.0"
 
 
 def test_cli_help_describes_input_and_output_options(

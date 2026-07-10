@@ -5,7 +5,7 @@ from customer_service_hallucination_audit import __version__
 from customer_service_hallucination_audit.__main__ import build_parser
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_VERSION = "0.3.0"
+EXPECTED_VERSION = "1.0.0"
 
 
 def test_package_exposes_version() -> None:

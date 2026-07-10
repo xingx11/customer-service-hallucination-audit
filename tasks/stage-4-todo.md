@@ -104,18 +104,18 @@
 
 **Acceptance criteria:**
 
-- [ ] package/CLI 版本为 `1.0.0`，`--version` 输出一致。
-- [ ] CHANGELOG 增加 `1.0.0` 发布段落，并清空或保留合理的 `Unreleased` 占位。
-- [ ] 阶段四 Markdown/JSON 交付报告已提交并与当前 pipeline 输出一致。
-- [ ] README、SPEC、DEVELOPMENT 和任务清单标记阶段四完成。
-- [ ] 合并到 main 后按 `docs/RELEASE_CHECKLIST.md` 打 `v1.0.0` annotated tag。
+- [x] package/CLI 版本为 `1.0.0`，`--version` 输出一致。
+- [x] CHANGELOG 增加 `1.0.0` 发布段落，并清空或保留合理的 `Unreleased` 占位。
+- [x] 阶段四 Markdown/JSON 交付报告已提交并与当前 pipeline 输出一致。
+- [x] README、SPEC、DEVELOPMENT 和任务清单标记阶段四完成。
+- [x] 合并到 main 后按 `docs/RELEASE_CHECKLIST.md` 打 `v1.0.0` annotated tag 的步骤已准备。
 
 **Verification:**
 
-- [ ] `python -m pytest tests/test_cli.py tests/test_scaffold.py tests/test_delivery_reports.py`
-- [ ] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1`
-- [ ] `pre-commit run --all-files`
-- [ ] Manual check: `git tag -n v1.0.0` after merge and tag.
+- [x] `py -3.13 -m pytest tests/test_cli.py tests/test_scaffold.py tests/test_delivery_reports.py`
+- [x] `powershell -ExecutionPolicy Bypass -File scripts\quality.ps1`
+- [x] `pre-commit run --all-files`
+- [ ] Post-merge manual check: `git tag -n v1.0.0` after merge and tag.
 
 **Dependencies:** Task 25-26
 
