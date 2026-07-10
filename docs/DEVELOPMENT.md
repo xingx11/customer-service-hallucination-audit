@@ -8,7 +8,7 @@
 
 当前第三阶段功能开发已经收尾，并已打 `v0.3.0` 标签：阶段三完成 Adapter + 最小 LLM 接入闭环，已交付版本/发布元数据一致性、detector adapter contract、deterministic adapter、mock adapter、LLM prompt、输出 schema、离线解析校验、显式 opt-in 的 `llm` adapter 与 CLI detector 选择，以及阶段三 Markdown/JSON 交付报告。默认路径继续保持离线、确定性、无真实 LLM API 依赖。
 
-当前第四阶段已经启动：阶段四只做最终交付收尾，目标是完成 `v1.0.0` 发布准备，包括最终文档复核、发布检查清单、质量门禁、安装/CLI smoke test、阶段四交付报告和最终标签步骤。阶段四不新增 detector 能力，不新增运行时依赖，也不加入 `.env` 自动加载。
+当前第四阶段已经启动：阶段四只做最终交付收尾，目标是完成 `v1.0.0` 发布准备，包括最终文档复核、发布检查清单、质量门禁、安装/CLI smoke test、阶段四交付报告和最终标签步骤。阶段四不新增 detector 能力，不新增运行时依赖，也不加入 `.env` 自动加载。当前已完成阶段四发布准备计划、发布检查清单和最终文档与交付复核，复核记录见 `docs/DELIVERY_REVIEW.md`。
 
 第一阶段完成标准已经满足：
 
@@ -32,7 +32,7 @@
 - 当前环境配置边界：项目不自动读取 `.env` 文件，暂不提供 `.env.example`；LLM 配置通过 shell、CI secret 或调用方进程环境显式注入。
 - 当前工具：`scripts/quality.ps1` 依次运行 ruff、format check、mypy、pytest；CI 还会运行 pre-commit。
 - 当前本地状态：CodeGraph 已初始化，`.codegraph/` 是本地索引目录，不应提交。
-- 当前计划入口：`tasks/plan.md` 和 `tasks/todo.md` 已指向第四阶段；阶段四专属文档为 `tasks/stage-4-plan.md` 和 `tasks/stage-4-todo.md`，发布检查清单为 `docs/RELEASE_CHECKLIST.md`。
+- 当前计划入口：`tasks/plan.md` 和 `tasks/todo.md` 已指向第四阶段；阶段四专属文档为 `tasks/stage-4-plan.md` 和 `tasks/stage-4-todo.md`，发布检查清单为 `docs/RELEASE_CHECKLIST.md`，交付复核记录为 `docs/DELIVERY_REVIEW.md`。
 
 ## 我的开发流程
 
@@ -135,10 +135,10 @@
 - 阶段三 Markdown/JSON 交付报告
 - 阶段三文档、CHANGELOG 与质量门禁收尾
 - 阶段四发布准备计划、任务清单和发布检查清单
+- 阶段四最终文档与交付复核
 
 待完成：
 
-- Task 25：最终文档与交付复核。
 - Task 26：最终质量门禁与安装/CLI smoke test。
 - Task 27：`v1.0.0` 发布收尾。
 
@@ -147,7 +147,8 @@
 - 阶段四计划：`tasks/stage-4-plan.md`
 - 阶段四任务清单：`tasks/stage-4-todo.md`
 - 发布检查清单：`docs/RELEASE_CHECKLIST.md`
-- 下一步建议执行 Task 25，完成 README、SPEC、CHANGELOG、开发文档和报告链接的最终一致性复核。
+- 交付复核记录：`docs/DELIVERY_REVIEW.md`
+- 下一步建议执行 Task 26，完成最终质量门禁与安装/CLI smoke test。
 
 ## 开发时的默认命令
 
