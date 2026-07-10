@@ -9,13 +9,16 @@ from customer_service_hallucination_audit.metrics import (
     MetricsValidationError,
     analyze_errors,
     calculate_metrics,
+    calculate_type_metrics,
     select_error_cases,
 )
 from customer_service_hallucination_audit.models import (
+    HALLUCINATION_TYPES,
     DetectionResult,
     ErrorType,
     GroundTruthLabel,
     HallucinationType,
+    TypeMetricsSummary,
 )
 
 
@@ -278,6 +281,129 @@ def test_calculate_metrics_handles_no_predicted_positives() -> None:
     assert summary.precision == 0.0
     assert summary.recall == 0.0
     assert summary.f1 == 0.0
+
+
+def test_calculate_type_metrics_counts_labels_predictions_true_positives_and_mismatches() -> None:
+    labels = (
+        label("h01", is_hallucination=True, hallucination_type="政策编造"),
+        label("h02", is_hallucination=True, hallucination_type="信息遗漏"),
+        label("h03", is_hallucination=False),
+        label("h04", is_hallucination=True, hallucination_type="参数编造"),
+        label("h05", is_hallucination=False),
+    )
+    predictions = (
+        result("h01", is_hallucination=True, hallucination_type="政策编造"),
+        result("h02", is_hallucination=False),
+        result("h03", is_hallucination=True, hallucination_type="优惠编造"),
+        result("h04", is_hallucination=True, hallucination_type="信息编造"),
+        result("h05", is_hallucination=False),
+    )
+
+    summaries = calculate_type_metrics(predictions, labels)
+
+    assert tuple(summary.hallucination_type for summary in summaries) == HALLUCINATION_TYPES
+    summaries_by_type = {summary.hallucination_type: summary for summary in summaries}
+    assert summaries_by_type["政策编造"] == TypeMetricsSummary(
+        hallucination_type="政策编造",
+        label_count=1,
+        predicted_count=1,
+        true_positive_count=1,
+        mismatch_count=0,
+    )
+    assert summaries_by_type["信息遗漏"] == TypeMetricsSummary(
+        hallucination_type="信息遗漏",
+        label_count=1,
+        predicted_count=0,
+        true_positive_count=0,
+        mismatch_count=1,
+    )
+    assert summaries_by_type["优惠编造"] == TypeMetricsSummary(
+        hallucination_type="优惠编造",
+        label_count=0,
+        predicted_count=1,
+        true_positive_count=0,
+        mismatch_count=1,
+    )
+    assert summaries_by_type["参数编造"] == TypeMetricsSummary(
+        hallucination_type="参数编造",
+        label_count=1,
+        predicted_count=0,
+        true_positive_count=0,
+        mismatch_count=1,
+    )
+    assert summaries_by_type["信息编造"] == TypeMetricsSummary(
+        hallucination_type="信息编造",
+        label_count=0,
+        predicted_count=1,
+        true_positive_count=0,
+        mismatch_count=1,
+    )
+
+
+def test_calculate_type_metrics_returns_all_known_types_for_empty_input() -> None:
+    summaries = calculate_type_metrics((), ())
+
+    assert tuple(summary.hallucination_type for summary in summaries) == HALLUCINATION_TYPES
+    assert all(summary.label_count == 0 for summary in summaries)
+    assert all(summary.predicted_count == 0 for summary in summaries)
+    assert all(summary.true_positive_count == 0 for summary in summaries)
+    assert all(summary.mismatch_count == 0 for summary in summaries)
+
+
+def test_calculate_type_metrics_handles_no_predicted_positives() -> None:
+    labels = (
+        label("h01", is_hallucination=True, hallucination_type="政策编造"),
+        label("h02", is_hallucination=False),
+    )
+    predictions = (
+        result("h01", is_hallucination=False),
+        result("h02", is_hallucination=False),
+    )
+
+    summaries = calculate_type_metrics(predictions, labels)
+
+    summaries_by_type = {summary.hallucination_type: summary for summary in summaries}
+    assert summaries_by_type["政策编造"] == TypeMetricsSummary(
+        hallucination_type="政策编造",
+        label_count=1,
+        predicted_count=0,
+        true_positive_count=0,
+        mismatch_count=1,
+    )
+    assert all(
+        summary
+        == TypeMetricsSummary(
+            hallucination_type=summary.hallucination_type,
+            label_count=0,
+            predicted_count=0,
+            true_positive_count=0,
+            mismatch_count=0,
+        )
+        for summary in summaries
+        if summary.hallucination_type != "政策编造"
+    )
+
+
+def test_calculate_type_metrics_rejects_unknown_hallucination_type() -> None:
+    labels = (
+        label(
+            "h01",
+            is_hallucination=True,
+            hallucination_type=cast(HallucinationType, "未知类型"),
+        ),
+    )
+    predictions = (result("h01", is_hallucination=False),)
+
+    with pytest.raises(MetricsValidationError, match="Unknown hallucination_type '未知类型'"):
+        calculate_type_metrics(predictions, labels)
+
+
+def test_calculate_type_metrics_reuses_comparable_record_validation() -> None:
+    labels = (label("h01", is_hallucination=False),)
+    predictions = (result("h02", is_hallucination=False),)
+
+    with pytest.raises(MetricsValidationError, match="Prediction and label IDs must match"):
+        calculate_type_metrics(predictions, labels)
 
 
 def test_metrics_rejects_mismatched_case_ids() -> None:

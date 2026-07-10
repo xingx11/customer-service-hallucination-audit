@@ -140,6 +140,21 @@ class MetricsSummary:
 
 
 @dataclass(frozen=True)
+class TypeMetricsSummary:
+    """Per-type counts comparing human labels with detector predictions."""
+
+    hallucination_type: HallucinationType
+    label_count: int
+    predicted_count: int
+    true_positive_count: int
+    mismatch_count: int
+
+    def __post_init__(self) -> None:
+        if self.hallucination_type not in HALLUCINATION_TYPES:
+            raise ValueError(f"Unknown hallucination_type '{self.hallucination_type}'")
+
+
+@dataclass(frozen=True)
 class ErrorCase:
     """A mismatch between a detector result and the human label."""
 
@@ -193,4 +208,5 @@ __all__ = [
     "ReplyCase",
     "RuleMetadata",
     "RuleRiskLevel",
+    "TypeMetricsSummary",
 ]
