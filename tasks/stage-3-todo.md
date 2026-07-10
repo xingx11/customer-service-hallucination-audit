@@ -118,14 +118,14 @@
 
 **Acceptance criteria:**
 
-- [ ] prompt 明确只依据用户问题、系统回复和知识库判断，不读取人工真值。
-- [ ] parser 校验 `case_id`、`is_hallucination`、`hallucination_type`、`reasons`、`rule_ids`。
-- [ ] 未知幻觉类型、case_id 不匹配、缺字段、非 JSON 输出均抛出可理解错误。
+- [x] prompt 明确只依据用户问题、系统回复和知识库判断，不读取人工真值。
+- [x] parser 校验 `case_id`、`is_hallucination`、`hallucination_type`、`reasons`、`rule_ids`。
+- [x] 未知幻觉类型、case_id 不匹配、缺字段、非 JSON 输出均抛出可理解错误。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_detector.py`
-- [ ] Type check passes: `python -m mypy src`
+- [x] Tests pass: `py -3.13 -m pytest tests/test_detector.py`
+- [x] Type check passes: `py -3.13 -m mypy src`
 
 **Dependencies:** Task 20
 

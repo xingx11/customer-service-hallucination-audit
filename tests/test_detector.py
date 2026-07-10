@@ -1,14 +1,18 @@
+import json
 from pathlib import Path
 
 import pytest
 
 from customer_service_hallucination_audit.detector import (
     DETECTION_RULES,
+    LlmOutputValidationError,
     UnknownDetectorError,
+    build_llm_prompt,
     detect_replies,
     detect_reply,
     deterministic_detector,
     mock_detector,
+    parse_llm_detection_result,
     select_detector,
 )
 from customer_service_hallucination_audit.io import load_audit_dataset, load_reply_cases
@@ -130,6 +134,121 @@ def test_select_detector_rejects_unknown_adapter() -> None:
         match="Unknown detector adapter 'unknown'. Expected one of: deterministic, mock",
     ):
         select_detector("unknown")
+
+
+def test_build_llm_prompt_uses_only_reply_evidence_and_schema() -> None:
+    reply = load_default_reply_cases()["h01"]
+
+    prompt = build_llm_prompt(reply)
+
+    assert reply.case_id in prompt
+    assert reply.user_question in prompt
+    assert reply.system_reply in prompt
+    assert reply.knowledge_base in prompt
+    assert "只依据用户问题、系统回复和知识库" in prompt
+    assert "不要使用人工真值" in prompt
+    assert '"case_id"' in prompt
+    assert '"is_hallucination"' in prompt
+    assert '"hallucination_type"' in prompt
+    assert all(hallucination_type in prompt for hallucination_type in HALLUCINATION_TYPES)
+
+
+def test_parse_llm_detection_result_accepts_valid_hallucination_output() -> None:
+    reply = load_default_reply_cases()["h01"]
+    raw_output = json.dumps(
+        {
+            "case_id": "h01",
+            "is_hallucination": True,
+            "hallucination_type": "政策编造",
+            "reasons": ["回复把7天无理由退货扩展为30天。"],
+            "rule_ids": ["llm.policy_fabrication"],
+        },
+        ensure_ascii=False,
+    )
+
+    result = parse_llm_detection_result(reply, raw_output)
+
+    assert result.case_id == "h01"
+    assert result.is_hallucination is True
+    assert result.hallucination_type == "政策编造"
+    assert result.reasons == ("回复把7天无理由退货扩展为30天。",)
+    assert result.rule_ids == ("llm.policy_fabrication",)
+
+
+def test_parse_llm_detection_result_accepts_valid_non_hallucination_output() -> None:
+    reply = load_default_reply_cases()["h12"]
+    raw_output = json.dumps(
+        {
+            "case_id": "h12",
+            "is_hallucination": False,
+            "hallucination_type": None,
+            "reasons": ["回复与知识库一致。"],
+            "rule_ids": [],
+        },
+        ensure_ascii=False,
+    )
+
+    result = parse_llm_detection_result(reply, raw_output)
+
+    assert result.case_id == "h12"
+    assert result.is_hallucination is False
+    assert result.hallucination_type is None
+    assert result.reasons == ("回复与知识库一致。",)
+    assert result.rule_ids == ()
+
+
+@pytest.mark.parametrize(
+    ("raw_output", "expected_message"),
+    [
+        ("不是 JSON", "LLM output must be valid JSON"),
+        (
+            json.dumps(
+                {
+                    "case_id": "h01",
+                    "is_hallucination": True,
+                    "hallucination_type": "政策编造",
+                    "rule_ids": [],
+                },
+                ensure_ascii=False,
+            ),
+            "LLM output missing required field 'reasons'",
+        ),
+        (
+            json.dumps(
+                {
+                    "case_id": "h02",
+                    "is_hallucination": True,
+                    "hallucination_type": "政策编造",
+                    "reasons": ["ID 不匹配。"],
+                    "rule_ids": [],
+                },
+                ensure_ascii=False,
+            ),
+            "LLM output case_id 'h02' does not match reply case_id 'h01'",
+        ),
+        (
+            json.dumps(
+                {
+                    "case_id": "h01",
+                    "is_hallucination": True,
+                    "hallucination_type": "未知类型",
+                    "reasons": ["未知类型。"],
+                    "rule_ids": [],
+                },
+                ensure_ascii=False,
+            ),
+            "Unknown hallucination_type '未知类型'",
+        ),
+    ],
+)
+def test_parse_llm_detection_result_rejects_invalid_output(
+    raw_output: str,
+    expected_message: str,
+) -> None:
+    reply = load_default_reply_cases()["h01"]
+
+    with pytest.raises(LlmOutputValidationError, match=expected_message):
+        parse_llm_detection_result(reply, raw_output)
 
 
 def test_detect_reply_uses_content_rules_not_case_ids() -> None:
