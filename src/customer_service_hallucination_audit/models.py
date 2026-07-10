@@ -21,6 +21,13 @@ HALLUCINATION_TYPES: tuple[HallucinationType, ...] = cast(
     get_args(HallucinationType),
 )
 
+RuleRiskLevel: TypeAlias = Literal["low", "medium", "high"]
+
+RULE_RISK_LEVELS: tuple[RuleRiskLevel, ...] = cast(
+    tuple[RuleRiskLevel, ...],
+    get_args(RuleRiskLevel),
+)
+
 ErrorType: TypeAlias = Literal["false_positive", "false_negative", "type_mismatch"]
 
 
@@ -57,6 +64,27 @@ class AuditDataset:
 
     replies: tuple[ReplyCase, ...]
     labels: tuple[GroundTruthLabel, ...]
+
+
+@dataclass(frozen=True)
+class RuleMetadata:
+    """Stable metadata used to explain and aggregate detector rules."""
+
+    rule_id: str
+    hallucination_type: HallucinationType
+    risk_level: RuleRiskLevel
+    description: str
+    trigger_intent: str
+
+    def __post_init__(self) -> None:
+        _validate_required_text("rule_id", self.rule_id)
+        _validate_required_text("description", self.description)
+        _validate_required_text("trigger_intent", self.trigger_intent)
+
+        if self.hallucination_type not in HALLUCINATION_TYPES:
+            raise ValueError(f"Unknown hallucination_type '{self.hallucination_type}'")
+        if self.risk_level not in RULE_RISK_LEVELS:
+            raise ValueError(f"Unknown risk_level '{self.risk_level}'")
 
 
 @dataclass(frozen=True)
@@ -147,6 +175,11 @@ def _safe_divide(numerator: int, denominator: int) -> float:
     return numerator / denominator
 
 
+def _validate_required_text(field_name: str, value: str) -> None:
+    if not value:
+        raise ValueError(f"{field_name} must not be empty")
+
+
 __all__ = [
     "AuditDataset",
     "DetectionResult",
@@ -156,5 +189,8 @@ __all__ = [
     "HALLUCINATION_TYPES",
     "HallucinationType",
     "MetricsSummary",
+    "RULE_RISK_LEVELS",
     "ReplyCase",
+    "RuleMetadata",
+    "RuleRiskLevel",
 ]
