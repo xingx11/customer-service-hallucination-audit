@@ -1,43 +1,41 @@
-# Implementation Plan: 当前活动计划（第三阶段）
+# Implementation Plan: 当前活动计划（第四阶段）
 
-当前活动计划是第三阶段“Adapter + 最小 LLM 接入”。完整计划见：
+当前活动计划是第四阶段“最终交付收尾”。完整计划见：
 
-- `tasks/stage-3-plan.md`
-- `tasks/stage-3-todo.md`
+- `tasks/stage-4-plan.md`
+- `tasks/stage-4-todo.md`
 
 ## Overview
 
-第三阶段从 `v0.2.0` 标签继续推进，目标是在保持默认离线可复现的前提下，让同一套 pipeline 可以运行 `deterministic`、`mock`、`llm` 三种 detector。当前第三阶段已完成，合并后可打 `v0.3.0` 标签，随后只保留最终交付收尾阶段，对应 `v1.0.0`。
+第四阶段从 `v0.3.0` 标签后的稳定功能面继续推进，不再扩大检测能力或新增运行时依赖。目标是在 `v1.0.0` 前完成最终文档复核、发布检查清单、安装/CLI smoke test、完整质量门禁和最终交付报告，让项目具备可审阅、可复现、可发布的收尾状态。
 
 ## Task List
 
-### Phase 0: Stage 3 Replanning
+### Phase 0: Release Readiness Planning
 
-- [x] Task 17: 重新校准第三阶段为最小 LLM 接入闭环。
+- [x] Task 24: 建立阶段四发布准备计划和发布检查清单。
 
-### Phase 1: Version And Adapter Contract
+### Phase 1: Documentation And Delivery Review
 
-- [x] Task 18: 对齐版本元数据与发布记录。
-- [x] Task 19: 定义 detector adapter contract。
+- [ ] Task 25: 最终文档与交付复核。
 
-### Phase 2: Offline Adapter Paths
+### Phase 2: Quality And Install Smoke
 
-- [x] Task 20: 接入 deterministic adapter 和 mock adapter。
-- [x] Task 21: 增加 LLM 输出 schema、prompt 模板和解析校验。
+- [ ] Task 26: 最终质量门禁与安装/CLI smoke test。
 
-### Phase 3: Optional LLM Path And Delivery
+### Phase 3: v1.0.0 Release Closeout
 
-- [x] Task 22: 增加可选 LLM adapter 与 CLI detector 选择。
-- [x] Task 23: 完成第三阶段交付报告、文档和质量门禁。
+- [ ] Task 27: 完成 `v1.0.0` 发布收尾。
 
 ## Checkpoints
 
-- [x] Adapter Foundation: CLI/package 版本策略清晰，pipeline 可接收不同 detector。
-- [x] Offline Confidence: deterministic 和 mock 路径均可离线端到端运行。
-- [x] Stage 3 Complete: LLM 路径显式 opt-in，默认质量门禁不依赖真实 LLM。
+- [x] Release Scope Locked: 阶段四范围固定为最终交付准备，不再新增 detector 能力。
+- [ ] Documentation Ready: README、SPEC、CHANGELOG、开发文档和交付报告链接一致。
+- [ ] Release Gate Passed: 质量门禁、pre-commit、安装和 CLI smoke test 均通过。
+- [ ] v1.0.0 Ready: 版本、CHANGELOG、最终报告和打标签步骤准备完成。
 
 ## Boundaries
 
-- Always: 默认 detector 为 deterministic；LLM 必须显式选择；测试不依赖真实网络。
-- Ask first: 新增运行时依赖；改变默认数据文件格式；把真实 LLM 调用纳入 CI。
-- Never: 提交密钥；用人工真值硬编码预测；LLM 失败时静默伪装成确定性结果。
+- Always: 默认 detector 为 deterministic；LLM 继续显式 opt-in；质量门禁不依赖真实 LLM 或网络。
+- Ask first: 新增运行时依赖；加入 `.env` 自动加载；改变默认数据或报告 schema。
+- Never: 提交密钥或 `.env`；把真实 LLM 调用纳入默认 CI；用不可复现输出替代确定性报告。

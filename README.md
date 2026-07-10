@@ -2,7 +2,7 @@
 
 面向客服自动回复场景的幻觉检测评测项目。项目会读取 20 条客服回复、对应知识库和人工标注，自动判断回复是否存在幻觉，输出检测结果、检出率指标和误判分析。
 
-当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；第二阶段鲁棒性与可解释性增强已完成并打 `v0.2.0` 标签；第三阶段 Adapter + 最小 LLM 接入闭环已完成，支持 `deterministic`、`mock` 与显式 opt-in 的 `llm` detector 路径。默认命令可读取随包数据并生成 Markdown/JSON 报告；阶段一、阶段二和阶段三交付报告均已提交在 `docs/reports/` 下，并随当前流水线格式保持一致。
+当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；第二阶段鲁棒性与可解释性增强已完成并打 `v0.2.0` 标签；第三阶段 Adapter + 最小 LLM 接入闭环已完成并打 `v0.3.0` 标签，支持 `deterministic`、`mock` 与显式 opt-in 的 `llm` detector 路径。项目当前进入第四阶段最终交付收尾，目标是完成 `v1.0.0` 发布准备；默认命令可读取随包数据并生成 Markdown/JSON 报告，阶段一、阶段二和阶段三交付报告均已提交在 `docs/reports/` 下，并随当前流水线格式保持一致。
 
 ## 为什么选择这个题
 
@@ -77,7 +77,7 @@ $env:CS_HALLUCINATION_AUDIT_LLM_MODEL = "<model-name>"
 python -m customer_service_hallucination_audit --detector llm --output-dir reports
 ```
 
-缺少任一环境变量时，`llm` 路径会返回清晰错误并停止，不会静默降级为确定性结果。
+缺少任一环境变量时，`llm` 路径会返回清晰错误并停止，不会静默降级为确定性结果。项目当前不自动读取 `.env` 文件，因此暂不提供 `.env.example`；如需使用 `llm` detector，请通过 shell、CI secret 或调用方进程环境显式设置上述变量。
 
 也可以显式指定输入文件：
 
@@ -173,25 +173,30 @@ total=20, precision=1.000, recall=1.000, f1=1.000
 - [阶段三实施计划](tasks/stage-3-plan.md)
 - [阶段三任务清单](tasks/stage-3-todo.md)
 
+阶段四发布准备：
+
+- [阶段四实施计划](tasks/stage-4-plan.md)
+- [阶段四任务清单](tasks/stage-4-todo.md)
+- [发布检查清单](docs/RELEASE_CHECKLIST.md)
+
 ## 开发路线
 
 ```text
 v0.1.0  阶段一：离线评测 MVP，已完成
 v0.2.0  阶段二：鲁棒性与可解释性，已完成
 v0.3.0  阶段三：Adapter + 最小 LLM 接入，已完成
-v1.0.0  阶段四：最终交付收尾，下一步
+v1.0.0  阶段四：最终交付收尾，进行中
 ```
 
-## 第三阶段方向
+## 第四阶段方向
 
-第三阶段不再推进复杂评测平台化，而是完成最小 LLM 闭环：
+第四阶段不再推进功能扩展，而是完成正式交付前的发布准备：
 
-- 版本元数据与发布记录对齐。
-- detector adapter contract。
-- `deterministic` adapter，默认仍使用现有确定性规则检测器。（已完成）
-- `mock` adapter，用于离线测试 adapter 注入和报告链路。（已完成）
-- LLM prompt、输出 schema 和解析校验。（已完成）
-- 可选 `llm` adapter 与 CLI detector 选择参数。（已完成）
+- 最终复核 README、SPEC、CHANGELOG、开发文档和交付报告链接。
+- 使用 `docs/RELEASE_CHECKLIST.md` 固化质量门禁、CLI smoke test、安装验证和打标签步骤。
+- 保持默认 deterministic 路径离线可复现，mock/LLM 路径只作为显式选择。
+- 不新增 `.env` 自动加载、provider SDK 或运行时依赖。
+- 在最后收尾任务中更新 `1.0.0` 版本、生成阶段四交付报告，并在合并 main 后打 `v1.0.0` 标签。
 
 真实 LLM API 不进入默认路径，必须显式选择并通过环境变量配置；默认质量门禁仍然离线运行。
 

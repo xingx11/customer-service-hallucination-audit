@@ -6,7 +6,9 @@
 
 项目第一阶段已经完成，并已打 `v0.1.0` 标签：核心离线评测流水线可通过 CLI 运行，默认数据随包发布，阶段一 Markdown/JSON 交付报告已提交，并有测试验证交付报告与当前 pipeline 输出一致。第二阶段鲁棒性与可解释性增强也已完成，并已打 `v0.2.0` 标签：已交付鲁棒性样本、检测器边界测试、规则元数据模型、规则命中摘要、按类型聚合指标、报告解释增强和阶段二 Markdown/JSON 交付报告。
 
-当前第三阶段功能开发已经收尾：阶段三完成 Adapter + 最小 LLM 接入闭环，已交付版本/发布元数据一致性、detector adapter contract、deterministic adapter、mock adapter、LLM prompt、输出 schema、离线解析校验、显式 opt-in 的 `llm` adapter 与 CLI detector 选择，以及阶段三 Markdown/JSON 交付报告。默认路径继续保持离线、确定性、无真实 LLM API 依赖。后续进入阶段四最终交付收尾。
+当前第三阶段功能开发已经收尾，并已打 `v0.3.0` 标签：阶段三完成 Adapter + 最小 LLM 接入闭环，已交付版本/发布元数据一致性、detector adapter contract、deterministic adapter、mock adapter、LLM prompt、输出 schema、离线解析校验、显式 opt-in 的 `llm` adapter 与 CLI detector 选择，以及阶段三 Markdown/JSON 交付报告。默认路径继续保持离线、确定性、无真实 LLM API 依赖。
+
+当前第四阶段已经启动：阶段四只做最终交付收尾，目标是完成 `v1.0.0` 发布准备，包括最终文档复核、发布检查清单、质量门禁、安装/CLI smoke test、阶段四交付报告和最终标签步骤。阶段四不新增 detector 能力，不新增运行时依赖，也不加入 `.env` 自动加载。
 
 第一阶段完成标准已经满足：
 
@@ -27,9 +29,10 @@
 - 当前 adapter 边界：`Detector` contract 定义输入为 `ReplyCase` 序列、输出为 `DetectionResult` 序列；`run_audit` 可注入 detector，默认仍使用确定性规则检测器。
 - 当前 CLI detector：`--detector deterministic` 是默认规则检测器路径；`--detector mock` 使用稳定合成结果验证 adapter 注入和报告链路；`--detector llm` 是显式 opt-in 路径。
 - 当前 LLM parser/adapter：prompt 明确只依据用户问题、系统回复和知识库；parser 校验 `case_id`、`is_hallucination`、`hallucination_type`、`reasons`、`rule_ids` 后转换为 `DetectionResult`；`llm` adapter 只从 `CS_HALLUCINATION_AUDIT_LLM_API_KEY`、`CS_HALLUCINATION_AUDIT_LLM_ENDPOINT` 和 `CS_HALLUCINATION_AUDIT_LLM_MODEL` 读取配置。
+- 当前环境配置边界：项目不自动读取 `.env` 文件，暂不提供 `.env.example`；LLM 配置通过 shell、CI secret 或调用方进程环境显式注入。
 - 当前工具：`scripts/quality.ps1` 依次运行 ruff、format check、mypy、pytest；CI 还会运行 pre-commit。
 - 当前本地状态：CodeGraph 已初始化，`.codegraph/` 是本地索引目录，不应提交。
-- 当前计划入口：`tasks/plan.md` 和 `tasks/todo.md` 已指向第三阶段；阶段三专属文档为 `tasks/stage-3-plan.md` 和 `tasks/stage-3-todo.md`。
+- 当前计划入口：`tasks/plan.md` 和 `tasks/todo.md` 已指向第四阶段；阶段四专属文档为 `tasks/stage-4-plan.md` 和 `tasks/stage-4-todo.md`，发布检查清单为 `docs/RELEASE_CHECKLIST.md`。
 
 ## 我的开发流程
 
@@ -131,17 +134,20 @@
 - 可选 LLM adapter 与 CLI detector 选择
 - 阶段三 Markdown/JSON 交付报告
 - 阶段三文档、CHANGELOG 与质量门禁收尾
+- 阶段四发布准备计划、任务清单和发布检查清单
 
 待完成：
 
-- 阶段四：最终交付收尾与 `v1.0.0` 发布准备。
+- Task 25：最终文档与交付复核。
+- Task 26：最终质量门禁与安装/CLI smoke test。
+- Task 27：`v1.0.0` 发布收尾。
 
 ## 后续建议
 
-- 阶段三计划：`tasks/stage-3-plan.md`
-- 阶段三任务清单：`tasks/stage-3-todo.md`
-- 阶段三已经完成，合并后可打 `v0.3.0` 标签。
-- 下一步建议规划阶段四，完成最终 README/报告复核、发布检查和 `v1.0.0` 交付准备。
+- 阶段四计划：`tasks/stage-4-plan.md`
+- 阶段四任务清单：`tasks/stage-4-todo.md`
+- 发布检查清单：`docs/RELEASE_CHECKLIST.md`
+- 下一步建议执行 Task 25，完成 README、SPEC、CHANGELOG、开发文档和报告链接的最终一致性复核。
 
 ## 开发时的默认命令
 
