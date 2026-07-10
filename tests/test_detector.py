@@ -2,10 +2,15 @@ from pathlib import Path
 
 import pytest
 
-from customer_service_hallucination_audit.detector import detect_replies, detect_reply
+from customer_service_hallucination_audit.detector import (
+    DETECTION_RULES,
+    detect_replies,
+    detect_reply,
+)
 from customer_service_hallucination_audit.io import load_audit_dataset, load_reply_cases
 from customer_service_hallucination_audit.models import (
     HALLUCINATION_TYPES,
+    RULE_RISK_LEVELS,
     AuditDataset,
     HallucinationType,
     ReplyCase,
@@ -107,6 +112,29 @@ def test_detect_reply_uses_content_rules_not_case_ids() -> None:
     assert result.is_hallucination is True
     assert result.hallucination_type == "能力越界"
     assert result.rule_ids == ("capability.logistics_lookup",)
+
+
+def test_detection_rules_have_complete_structured_metadata() -> None:
+    rule_ids = [rule.metadata.rule_id for rule in DETECTION_RULES]
+
+    assert len(rule_ids) == len(set(rule_ids))
+    assert all(rule.metadata.rule_id for rule in DETECTION_RULES)
+    assert all(rule.metadata.hallucination_type in HALLUCINATION_TYPES for rule in DETECTION_RULES)
+    assert all(rule.metadata.risk_level in RULE_RISK_LEVELS for rule in DETECTION_RULES)
+    assert all(rule.metadata.description for rule in DETECTION_RULES)
+    assert all(rule.metadata.trigger_intent for rule in DETECTION_RULES)
+
+
+def test_detect_reply_outputs_metadata_for_triggered_rule() -> None:
+    replies = load_default_reply_cases()
+    rules_by_id = {rule.metadata.rule_id: rule for rule in DETECTION_RULES}
+
+    result = detect_reply(replies["h01"])
+    triggered_rule = rules_by_id[result.rule_ids[0]]
+
+    assert result.rule_ids == (triggered_rule.metadata.rule_id,)
+    assert result.hallucination_type == triggered_rule.metadata.hallucination_type
+    assert result.reasons == (triggered_rule.metadata.description,)
 
 
 def test_stage_2_robustness_fixture_covers_planned_blind_spots() -> None:

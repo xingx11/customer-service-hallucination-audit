@@ -8,6 +8,7 @@ from customer_service_hallucination_audit.models import (
     GroundTruthLabel,
     MetricsSummary,
     ReplyCase,
+    RuleMetadata,
 )
 
 
@@ -72,6 +73,22 @@ def test_detection_result_records_reasons_and_triggered_rules() -> None:
     assert result.rule_ids == ("capability.unavailable_lookup",)
 
 
+def test_rule_metadata_describes_detector_rule() -> None:
+    metadata = RuleMetadata(
+        rule_id="policy.return_window_fabrication",
+        hallucination_type="政策编造",
+        risk_level="high",
+        description="回复把7天无理由退货扩展为30天无理由退货。",
+        trigger_intent="识别退货时效和运费承担政策编造。",
+    )
+
+    assert metadata.rule_id == "policy.return_window_fabrication"
+    assert metadata.hallucination_type == "政策编造"
+    assert metadata.risk_level == "high"
+    assert metadata.description
+    assert metadata.trigger_intent
+
+
 @pytest.mark.parametrize(
     ("is_hallucination", "hallucination_type", "expected_message"),
     [
@@ -91,6 +108,42 @@ def test_detection_result_rejects_invalid_hallucination_type_state(
             hallucination_type=hallucination_type,
             reasons=("检测原因",),
             rule_ids=("test.rule",) if is_hallucination else (),
+        )
+
+
+@pytest.mark.parametrize(
+    ("field_name", "expected_message"),
+    [
+        ("rule_id", "rule_id must not be empty"),
+        ("description", "description must not be empty"),
+        ("trigger_intent", "trigger_intent must not be empty"),
+    ],
+)
+def test_rule_metadata_rejects_empty_required_text(
+    field_name: str,
+    expected_message: str,
+) -> None:
+    values = {
+        "rule_id": "test.rule",
+        "hallucination_type": "政策编造",
+        "risk_level": "medium",
+        "description": "规则说明。",
+        "trigger_intent": "触发意图。",
+    }
+    values[field_name] = ""
+
+    with pytest.raises(ValueError, match=expected_message):
+        RuleMetadata(**values)
+
+
+def test_rule_metadata_rejects_unknown_risk_level() -> None:
+    with pytest.raises(ValueError, match="Unknown risk_level 'urgent'"):
+        RuleMetadata(
+            rule_id="test.rule",
+            hallucination_type="政策编造",
+            risk_level="urgent",
+            description="规则说明。",
+            trigger_intent="触发意图。",
         )
 
 

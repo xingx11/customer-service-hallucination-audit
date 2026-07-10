@@ -31,7 +31,7 @@
 
 ### Phase 2: Rule Explainability
 
-- [ ] Task 12: 引入规则元数据模型，描述规则 ID、类别、风险等级和说明。
+- [x] Task 12: 引入规则元数据模型，描述规则 ID、类别、风险等级和说明。
 - [ ] Task 13: 让检测结果或报告 payload 暴露规则命中摘要。
 
 ### Checkpoint: Explainability

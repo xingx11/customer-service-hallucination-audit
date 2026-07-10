@@ -81,14 +81,14 @@
 
 **Acceptance criteria:**
 
-- [ ] 每条规则有稳定 ID、类别、风险等级和中文说明。
-- [ ] 检测逻辑引用规则元数据，不维护重复的规则说明文本。
-- [ ] 默认 20 条样本的预测结果保持稳定，除非有明确测试说明。
+- [x] 每条规则有稳定 ID、类别、风险等级和中文说明。
+- [x] 检测逻辑引用规则元数据，不维护重复的规则说明文本。
+- [x] 默认 20 条样本的预测结果保持稳定，除非有明确测试说明。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_detector.py`
-- [ ] Type check passes: `python -m mypy src`
+- [x] Tests pass: `python -m pytest tests/test_detector.py`
+- [x] Type check passes: `python -m mypy src`
 
 **Dependencies:** Task 11
 
