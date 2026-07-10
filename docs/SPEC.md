@@ -8,7 +8,7 @@
 
 第一阶段已经完成：默认离线流水线可读取随包数据或显式 JSON 路径，执行确定性规则检测，计算指标，生成 Markdown/JSON 报告，并提交阶段一交付报告。质量门禁以 `scripts/quality.ps1`、pytest、ruff 和 mypy 为准。
 
-## Stage 2 Plan
+## Stage 2 Status
 
 第二阶段聚焦鲁棒性与可解释性增强：扩展默认数据之外的测试样本，结构化规则元数据，增加规则命中摘要和按类型聚合的指标，并增强 Markdown/JSON 报告解释能力。阶段二仍保持默认离线可复现，不接入真实 LLM API，不新增运行时依赖。
 
@@ -18,6 +18,15 @@
 
 - `tasks/stage-2-plan.md`
 - `tasks/stage-2-todo.md`
+
+## Stage 3 Plan
+
+第三阶段聚焦评测扩展与适配边界：先对齐 `v0.2.0` 标签后的版本元数据与发布记录，再定义 detector adapter contract，增加评测套件输入模型、跨套件报告元数据和报告回归比较能力。阶段三仍保持默认离线可复现，不接入真实 LLM API，不新增运行时依赖，不改变默认 `data/replies.json` 和 `data/ground_truth.json` 字段格式。
+
+阶段三规划文档：
+
+- `tasks/stage-3-plan.md`
+- `tasks/stage-3-todo.md`
 
 ## Tech Stack
 
@@ -113,6 +122,15 @@ def calculate_f1(precision: float, recall: float) -> float:
 - 默认 CLI 仍可离线运行，阶段一默认数据、报告生成和质量门禁不回退。
 - README、CHANGELOG、开发文档和任务清单已同步阶段二完成状态。
 
+## Stage 3 Success Criteria
+
+- CLI/package 版本信息与发布策略一致，`CHANGELOG` 中 `0.2.0` 发布段落和新的 `Unreleased` 段落清晰分离。
+- pipeline 可以通过 detector contract 注入 mock detector，默认 CLI 仍使用确定性规则检测器。
+- 评测套件模型可以用显式元数据组合多个 replies/ground truth 文件，且不改变既有数据 schema。
+- 报告能稳定展示 suite/detector 元数据、跨套件摘要或可比较的报告结构。
+- 提供离线报告回归比较能力，用于识别指标、类型表现、规则命中和错误案例漂移。
+- README、SPEC、CHANGELOG、开发文档和阶段三交付报告已同步，完整质量门禁通过。
+
 ## Resolved Decisions And Follow-ups
 
 - 报告格式：阶段一同时生成 Markdown 和 JSON。Markdown 面向人工审阅，JSON 面向自动化消费和 golden-style 验证。
@@ -120,3 +138,5 @@ def calculate_f1(precision: float, recall: float) -> float:
 - 最差案例解释：阶段一报告已包含漏检、误报、高风险案例和局限性说明；更详细的中文解释模板作为后续增强项。
 - 阶段二边界：优先增强鲁棒性样本、规则解释和报告指标；真实 LLM 接入仍不进入默认执行路径。
 - 规则命中摘要：报告层按规则 ID 聚合命中次数、样本 ID、风险等级、触发意图和中文说明；JSON 保持稳定字段顺序，Markdown 面向人工审阅展示规则解释。
+- 阶段三边界：优先做 adapter contract、suite orchestration 和报告比较；真实 LLM adapter 不进入默认路径，若需要接入必须另行确认。
+- 版本元数据跟进：`v0.2.0` 已打标签，阶段三第一批任务需要确认 package/CLI 版本来源，避免发布标签和运行时版本长期不一致。

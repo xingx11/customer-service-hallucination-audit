@@ -8,6 +8,16 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 
 ### Added
 
+- Stage-three planning documents for release metadata cleanup, detector adapter boundaries, evaluation suites, multi-suite reporting, and report regression comparison.
+
+### Changed
+
+- Updated README, SPEC, development docs, and active task pointers to start stage-three planning from the `v0.2.0` release point.
+
+## [0.2.0] - 2026-07-10
+
+### Added
+
 - Stage-two planning documents for robustness fixtures, rule explainability, per-type metrics, and report enhancements.
 - Stage-two robustness fixtures covering rewritten prompts, difficult negatives, omissions, and safety-sensitive cases.
 - Structured rule metadata with stable rule IDs, hallucination types, risk levels, descriptions, and trigger intent.
