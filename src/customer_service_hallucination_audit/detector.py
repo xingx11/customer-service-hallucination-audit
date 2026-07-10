@@ -2,16 +2,24 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
 from customer_service_hallucination_audit.models import (
     DetectionResult,
+    Detector,
     ReplyCase,
     RuleMetadata,
 )
 
 NO_RULE_REASON = "未触发确定性幻觉规则。"
+MOCK_HALLUCINATION_REASON = "模拟检测器生成的合成幻觉结果，用于离线验证 adapter 链路。"
+MOCK_NON_HALLUCINATION_REASON = "模拟检测器生成的合成非幻觉结果，用于离线验证 adapter 链路。"
+MOCK_RULE_ID = "mock.synthetic_signal"
+
+
+class UnknownDetectorError(ValueError):
+    """Raised when a detector adapter name is not registered."""
 
 
 @dataclass(frozen=True)
@@ -294,6 +302,58 @@ def detect_replies(reply_cases: Iterable[ReplyCase]) -> tuple[DetectionResult, .
     return tuple(detect_reply(reply_case) for reply_case in reply_cases)
 
 
+def deterministic_detector(reply_cases: Sequence[ReplyCase]) -> tuple[DetectionResult, ...]:
+    """Default offline detector adapter backed by deterministic rules."""
+
+    return detect_replies(reply_cases)
+
+
+def mock_detector(reply_cases: Sequence[ReplyCase]) -> tuple[DetectionResult, ...]:
+    """Return stable synthetic results for offline adapter wiring tests."""
+
+    results: list[DetectionResult] = []
+    for index, reply_case in enumerate(reply_cases):
+        if index % 2 == 0:
+            results.append(
+                DetectionResult(
+                    case_id=reply_case.case_id,
+                    is_hallucination=True,
+                    hallucination_type="信息编造",
+                    reasons=(MOCK_HALLUCINATION_REASON,),
+                    rule_ids=(MOCK_RULE_ID,),
+                )
+            )
+        else:
+            results.append(
+                DetectionResult(
+                    case_id=reply_case.case_id,
+                    is_hallucination=False,
+                    hallucination_type=None,
+                    reasons=(MOCK_NON_HALLUCINATION_REASON,),
+                    rule_ids=(),
+                )
+            )
+    return tuple(results)
+
+
+DETECTOR_ADAPTERS: dict[str, Detector] = {
+    "deterministic": deterministic_detector,
+    "mock": mock_detector,
+}
+
+
+def select_detector(name: str) -> Detector:
+    """Return a registered detector adapter by name."""
+
+    try:
+        return DETECTOR_ADAPTERS[name]
+    except KeyError as exc:
+        expected = ", ".join(DETECTOR_ADAPTERS)
+        raise UnknownDetectorError(
+            f"Unknown detector adapter '{name}'. Expected one of: {expected}"
+        ) from exc
+
+
 def _contains_all(text: str, tokens: tuple[str, ...]) -> bool:
     return all(token in text for token in tokens)
 
@@ -313,9 +373,15 @@ def _contains_none(text: str, tokens: tuple[str, ...]) -> bool:
 
 
 __all__ = [
+    "DETECTOR_ADAPTERS",
     "DETECTION_RULES",
+    "MOCK_RULE_ID",
     "NO_RULE_REASON",
     "DetectionRule",
+    "UnknownDetectorError",
     "detect_replies",
     "detect_reply",
+    "deterministic_detector",
+    "mock_detector",
+    "select_detector",
 ]

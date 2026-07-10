@@ -53,13 +53,13 @@ v1.0.0  阶段四：最终交付收尾
 
 ### Phase 2: Offline Adapter Paths
 
-- [ ] Task 20: 接入 deterministic adapter 和 mock adapter。
+- [x] Task 20: 接入 deterministic adapter 和 mock adapter。
 - [ ] Task 21: 增加 LLM 输出 schema、prompt 模板和解析校验。
 
 ### Checkpoint: Offline Confidence
 
-- [ ] `deterministic` 是默认 detector，完整质量门禁可离线通过。
-- [ ] `mock` detector 可端到端生成报告，并被测试覆盖。
+- [x] `deterministic` 是默认 detector，完整质量门禁可离线通过。
+- [x] `mock` detector 可端到端生成报告，并被测试覆盖。
 - [ ] LLM 输出解析和错误路径均可离线测试。
 
 ### Phase 3: Optional LLM Path And Delivery

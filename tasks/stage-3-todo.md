@@ -91,14 +91,14 @@
 
 **Acceptance criteria:**
 
-- [ ] `deterministic` adapter 复用当前规则检测器，默认输出不变。
-- [ ] `mock` adapter 可生成稳定、可测试的 `DetectionResult`。
-- [ ] adapter 选择错误时返回清晰错误。
+- [x] `deterministic` adapter 复用当前规则检测器，默认输出不变。
+- [x] `mock` adapter 可生成稳定、可测试的 `DetectionResult`。
+- [x] adapter 选择错误时返回清晰错误。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_detector.py tests/test_pipeline.py tests/test_cli.py`
-- [ ] Delivery reports for deterministic path remain stable.
+- [x] Tests pass: `py -3.13 -m pytest tests/test_detector.py tests/test_pipeline.py tests/test_cli.py`
+- [x] Delivery reports for deterministic path remain stable.
 
 **Dependencies:** Task 19
 

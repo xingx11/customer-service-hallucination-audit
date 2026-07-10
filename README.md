@@ -2,7 +2,7 @@
 
 面向客服自动回复场景的幻觉检测评测项目。项目会读取 20 条客服回复、对应知识库和人工标注，自动判断回复是否存在幻觉，输出检测结果、检出率指标和误判分析。
 
-当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；第二阶段鲁棒性与可解释性增强已完成并打 `v0.2.0` 标签；第三阶段调整为 Adapter + 最小 LLM 接入闭环。默认命令可读取随包数据并生成 Markdown/JSON 报告；阶段一和阶段二交付报告均已提交在 `docs/reports/` 下，并随当前流水线格式保持一致。
+当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；第二阶段鲁棒性与可解释性增强已完成并打 `v0.2.0` 标签；第三阶段调整为 Adapter + 最小 LLM 接入闭环，并已支持 `deterministic` 与 `mock` 两条离线 detector 路径。默认命令可读取随包数据并生成 Markdown/JSON 报告；阶段一和阶段二交付报告均已提交在 `docs/reports/` 下，并随当前流水线格式保持一致。
 
 ## 为什么选择这个题
 
@@ -62,10 +62,17 @@ python -m customer_service_hallucination_audit --output-dir reports
 - `report.md`：面向人工审阅的总体指标、类型表现、逐条分类结果、规则命中摘要和错误分析。
 - `report.json`：面向自动化消费的结构化检测结果、总体指标、类型指标、规则命中摘要、高风险筛选依据和误判分组。
 
+默认 detector 为 `deterministic`，即现有离线规则检测器。也可以显式运行离线 mock adapter 验证 adapter 注入和报告链路：
+
+```bash
+python -m customer_service_hallucination_audit --detector mock --output-dir reports
+```
+
 也可以显式指定输入文件：
 
 ```bash
 python -m customer_service_hallucination_audit ^
+  --detector deterministic ^
   --replies data/replies.json ^
   --ground-truth data/ground_truth.json ^
   --output-dir reports
@@ -165,8 +172,8 @@ v1.0.0  阶段四：最终交付收尾
 
 - 版本元数据与发布记录对齐。
 - detector adapter contract。
-- `deterministic` adapter，默认仍使用现有确定性规则检测器。
-- `mock` adapter，用于离线测试 adapter 注入和报告链路。
+- `deterministic` adapter，默认仍使用现有确定性规则检测器。（已完成）
+- `mock` adapter，用于离线测试 adapter 注入和报告链路。（已完成）
 - LLM prompt、输出 schema 和解析校验。
 - 可选 `llm` adapter 与 CLI detector 选择参数。
 

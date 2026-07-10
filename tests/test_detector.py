@@ -4,8 +4,12 @@ import pytest
 
 from customer_service_hallucination_audit.detector import (
     DETECTION_RULES,
+    UnknownDetectorError,
     detect_replies,
     detect_reply,
+    deterministic_detector,
+    mock_detector,
+    select_detector,
 )
 from customer_service_hallucination_audit.io import load_audit_dataset, load_reply_cases
 from customer_service_hallucination_audit.models import (
@@ -96,6 +100,36 @@ def test_detect_replies_flags_all_default_risky_cases_except_known_consistent_re
     non_hallucination_ids = {result.case_id for result in results if not result.is_hallucination}
     assert non_hallucination_ids == {"h12", "h16"}
     assert sum(result.is_hallucination for result in results) == 18
+
+
+def test_deterministic_adapter_matches_rule_detector() -> None:
+    replies = tuple(load_default_reply_cases()[case_id] for case_id in ("h01", "h12", "h20"))
+
+    assert deterministic_detector(replies) == detect_replies(replies)
+    assert select_detector("deterministic")(replies) == detect_replies(replies)
+
+
+def test_mock_adapter_returns_stable_synthetic_results() -> None:
+    replies = tuple(load_default_reply_cases()[case_id] for case_id in ("h01", "h02", "h03"))
+
+    results = mock_detector(replies)
+
+    assert tuple(result.case_id for result in results) == ("h01", "h02", "h03")
+    assert results[0].is_hallucination is True
+    assert results[0].hallucination_type == "信息编造"
+    assert results[0].rule_ids == ("mock.synthetic_signal",)
+    assert results[1].is_hallucination is False
+    assert results[1].hallucination_type is None
+    assert results[1].rule_ids == ()
+    assert select_detector("mock")(replies) == results
+
+
+def test_select_detector_rejects_unknown_adapter() -> None:
+    with pytest.raises(
+        UnknownDetectorError,
+        match="Unknown detector adapter 'unknown'. Expected one of: deterministic, mock",
+    ):
+        select_detector("unknown")
 
 
 def test_detect_reply_uses_content_rules_not_case_ids() -> None:
