@@ -57,14 +57,14 @@
 
 **Acceptance criteria:**
 
-- [ ] 同义改写样本能触发预期规则。
-- [ ] 困难负例不被基础规则误报。
-- [ ] 信息遗漏和政策偏差的边界有测试描述。
+- [x] 同义改写样本能触发预期规则。
+- [x] 困难负例不被基础规则误报。
+- [x] 信息遗漏和政策偏差的边界有测试描述。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_detector.py`
-- [ ] Existing default-data detector tests still pass.
+- [x] Tests pass: `python -m pytest tests/test_detector.py`
+- [x] Existing default-data detector tests still pass.
 
 **Dependencies:** Task 10
 

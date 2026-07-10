@@ -131,3 +131,53 @@ def test_stage_2_robustness_fixture_covers_planned_blind_spots() -> None:
     assert "同义改写" in details
     assert "信息遗漏" in details
     assert "安全敏感" in details
+
+
+@pytest.mark.parametrize(
+    ("case_id", "expected_rule_id"),
+    [
+        ("s2-policy-return-synonym", "policy.return_window_fabrication"),
+        ("s2-policy-invoice-entry", "policy.invoice_deviation"),
+        ("s2-parameter-bluetooth-synonym", "parameter.bluetooth_fabrication"),
+        ("s2-discount-student-synonym", "discount.student_discount_fabrication"),
+        ("s2-information-return-address-synonym", "information.return_address_fabrication"),
+        ("s2-capability-logistics-synonym", "capability.logistics_lookup"),
+        ("s2-safety-pregnancy-paraphrase", "safety.pregnancy_guidance"),
+        ("s2-omission-size-feedback-paraphrase", "omission.size_feedback"),
+    ],
+)
+def test_detect_reply_handles_stage_2_positive_boundary_cases(
+    case_id: str,
+    expected_rule_id: str,
+) -> None:
+    dataset = load_stage_2_robustness_dataset()
+    replies_by_id = {reply.case_id: reply for reply in dataset.replies}
+    labels_by_id = {label.case_id: label for label in dataset.labels}
+
+    result = detect_reply(replies_by_id[case_id])
+    expected = labels_by_id[case_id]
+
+    assert expected.is_hallucination is True
+    assert result.is_hallucination is True
+    assert result.hallucination_type == expected.hallucination_type
+    assert result.rule_ids == (expected_rule_id,)
+
+
+@pytest.mark.parametrize(
+    "case_id",
+    [
+        "s2-negative-coupon-denial",
+        "s2-negative-invoice-policy",
+        "s2-negative-logistics-boundary",
+        "s2-negative-safety-caution",
+    ],
+)
+def test_detect_reply_keeps_stage_2_hard_negatives_clean(case_id: str) -> None:
+    dataset = load_stage_2_robustness_dataset()
+    replies_by_id = {reply.case_id: reply for reply in dataset.replies}
+
+    result = detect_reply(replies_by_id[case_id])
+
+    assert result.is_hallucination is False
+    assert result.hallucination_type is None
+    assert result.rule_ids == ()
