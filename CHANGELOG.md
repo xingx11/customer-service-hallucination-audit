@@ -9,6 +9,16 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 ### Added
 
 - Stage-two planning documents for robustness fixtures, rule explainability, per-type metrics, and report enhancements.
+- Stage-two robustness fixtures covering rewritten prompts, difficult negatives, omissions, and safety-sensitive cases.
+- Structured rule metadata with stable rule IDs, hallucination types, risk levels, descriptions, and trigger intent.
+- Rule hit summaries in Markdown and JSON reports.
+- Per-type metrics for label count, predicted count, true positive count, and mismatch count.
+- Stage-two Markdown and JSON delivery reports under `docs/reports/`.
+
+### Changed
+
+- Expanded Markdown and JSON reports with type performance, high-risk case rationale, and clearer limitations.
+- Updated README, SPEC, and development docs to reflect stage-two completion and offline reproducibility boundaries.
 
 ## [0.1.0] - 2026-07-10
 

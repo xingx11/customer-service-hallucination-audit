@@ -53,13 +53,13 @@
 
 ### Phase 4: Stage 2 Delivery
 
-- [ ] Task 16: 更新 README/SPEC/CHANGELOG，生成阶段二交付说明并完成质量门禁。
+- [x] Task 16: 更新 README/SPEC/CHANGELOG，生成阶段二交付说明并完成质量门禁。
 
 ### Checkpoint: Complete
 
-- [ ] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1` 通过。
-- [ ] 无缓存、虚拟环境、CodeGraph 数据库或生成产物进入提交。
-- [ ] 阶段二变更拆分为可审查的小 PR。
+- [x] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1` 通过。
+- [x] 无缓存、虚拟环境、CodeGraph 数据库或生成产物进入提交。
+- [x] 阶段二变更拆分为可审查的小 PR。
 
 ## Risks and Mitigations
 
