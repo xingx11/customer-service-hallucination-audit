@@ -6,6 +6,15 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 
 ## [Unreleased]
 
+### Added
+
+- Stage-four release-readiness planning documents for final `v1.0.0` delivery closeout.
+- Release checklist covering documentation review, local quality gates, CLI smoke tests, packaged data checks, PR review, and tagging steps.
+
+### Changed
+
+- Updated README, SPEC, development docs, and active task pointers to make stage four the current release-readiness phase.
+
 ## [0.3.0] - 2026-07-10
 
 ### Added
