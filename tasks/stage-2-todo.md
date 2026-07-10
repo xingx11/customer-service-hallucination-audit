@@ -182,15 +182,15 @@
 
 **Acceptance criteria:**
 
-- [ ] README/SPEC 说明阶段二新增能力和局限性。
-- [ ] CHANGELOG 记录阶段二增强。
-- [ ] 完整质量门禁通过。
+- [x] README/SPEC 说明阶段二新增能力和局限性。
+- [x] CHANGELOG 记录阶段二增强。
+- [x] 完整质量门禁通过。
 
 **Verification:**
 
-- [ ] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1`
-- [ ] `pre-commit run --all-files`
-- [ ] `git status --short`
+- [x] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1`
+- [x] `pre-commit run --all-files`
+- [x] `git status --short`
 
 **Dependencies:** Task 10-15
 
