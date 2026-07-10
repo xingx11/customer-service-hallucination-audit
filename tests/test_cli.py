@@ -4,11 +4,13 @@ from pathlib import Path
 
 import pytest
 
+from customer_service_hallucination_audit import __version__
 from customer_service_hallucination_audit.__main__ import build_parser, main
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REPLIES_PATH = REPO_ROOT / "data" / "replies.json"
 GROUND_TRUTH_PATH = REPO_ROOT / "data" / "ground_truth.json"
+EXPECTED_VERSION = "0.3.0.dev0"
 
 
 def test_cli_help_describes_input_and_output_options(
@@ -30,6 +32,17 @@ def test_cli_parser_defers_default_input_resolution_to_runtime() -> None:
     assert args.replies is None
     assert args.ground_truth is None
     assert args.output_dir == Path("reports")
+
+
+def test_cli_version_reports_package_version(capsys: pytest.CaptureFixture[str]) -> None:
+    assert __version__ == EXPECTED_VERSION
+
+    with pytest.raises(SystemExit) as exc_info:
+        build_parser().parse_args(["--version"])
+
+    captured = capsys.readouterr()
+    assert exc_info.value.code == 0
+    assert captured.out.strip() == f"cs-hallucination-audit {EXPECTED_VERSION}"
 
 
 def test_cli_runs_with_explicit_inputs_and_output_dir(

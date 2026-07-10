@@ -13,6 +13,7 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 ### Changed
 
 - Updated README, SPEC, development docs, and active task pointers to make stage three the final feature phase before `v1.0.0` delivery closeout.
+- Aligned package and CLI version metadata to the stage-three development version `0.3.0.dev0`.
 
 ## [0.2.0] - 2026-07-10
 
