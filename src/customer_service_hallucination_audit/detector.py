@@ -21,6 +21,8 @@ class DetectionRule:
     reason: str
     reply_all: tuple[str, ...] = ()
     reply_any: tuple[str, ...] = ()
+    reply_any_groups: tuple[tuple[str, ...], ...] = ()
+    reply_none: tuple[str, ...] = ()
     knowledge_all: tuple[str, ...] = ()
     knowledge_any: tuple[str, ...] = ()
 
@@ -28,6 +30,8 @@ class DetectionRule:
         return (
             _contains_all(reply_case.system_reply, self.reply_all)
             and _contains_any(reply_case.system_reply, self.reply_any)
+            and _contains_any_groups(reply_case.system_reply, self.reply_any_groups)
+            and _contains_none(reply_case.system_reply, self.reply_none)
             and _contains_all(reply_case.knowledge_base, self.knowledge_all)
             and _contains_any(reply_case.knowledge_base, self.knowledge_any)
         )
@@ -38,8 +42,23 @@ DETECTION_RULES: tuple[DetectionRule, ...] = (
         rule_id="policy.return_window_fabrication",
         hallucination_type="政策编造",
         reason="回复把7天无理由退货扩展为30天无理由退货，并承诺商家承担非质量问题运费。",
-        reply_all=("30天无理由退货",),
-        reply_any=("运费也由我们承担", "运费由我们承担"),
+        reply_any_groups=(
+            (
+                "30天无理由退货",
+                "一个月内都能无理由退",
+                "一个月内无理由退",
+            ),
+            (
+                "来回运费我们包了",
+                "运费也由我们承担",
+                "运费由我们承担",
+            ),
+        ),
+        reply_none=(
+            "不支持30天无理由退货",
+            "暂无30天无理由退货",
+            "不支持一个月内无理由退",
+        ),
         knowledge_all=("7天无理由退货", "非质量问题退货运费由买家承担"),
     ),
     DetectionRule(
@@ -47,6 +66,7 @@ DETECTION_RULES: tuple[DetectionRule, ...] = (
         hallucination_type="政策偏差",
         reason="回复声称支持纸质发票或错误申请入口，与仅支持电子发票且需在订单详情页申请的政策不一致。",
         reply_any=("纸质发票", "备注"),
+        reply_none=("暂不支持纸质发票", "仅支持电子发票"),
         knowledge_all=("支持电子发票", "暂不支持纸质发票", "订单详情页申请"),
     ),
     DetectionRule(
@@ -61,6 +81,7 @@ DETECTION_RULES: tuple[DetectionRule, ...] = (
         hallucination_type="优惠编造",
         reason="回复承诺了知识库明确不存在的优惠券或优惠活动。",
         reply_any=("满300减50",),
+        reply_none=("暂无满300减50", "无满300减50", "没有满300减50", "不支持满300减50"),
         knowledge_any=("无满300减50",),
     ),
     DetectionRule(
@@ -74,7 +95,17 @@ DETECTION_RULES: tuple[DetectionRule, ...] = (
         rule_id="capability.logistics_lookup",
         hallucination_type="能力越界",
         reason="客服系统未接入物流查询接口，回复却声称查到包裹位置和送达时间。",
-        reply_any=("查了一下", "转运中心", "预计明天", "送达"),
+        reply_any_groups=(
+            ("查了一下", "刚查到"),
+            (
+                "转运中心",
+                "中转",
+                "预计明天",
+                "预计明晚",
+                "送达",
+                "派送",
+            ),
+        ),
         knowledge_all=("未接入物流查询接口",),
     ),
     DetectionRule(
@@ -102,7 +133,7 @@ DETECTION_RULES: tuple[DetectionRule, ...] = (
         rule_id="safety.pregnancy_guidance",
         hallucination_type="安全误导",
         reason="知识库要求孕妇或哺乳期女性咨询医生，回复却建议放心使用。",
-        reply_any=("孕妇可以放心使用", "放心使用"),
+        reply_any=("孕妇可以放心使用", "孕期也可以", "放心使用", "无需咨询医生"),
         knowledge_all=("孕妇及哺乳期女性建议咨询医生",),
     ),
     DetectionRule(
@@ -159,7 +190,7 @@ DETECTION_RULES: tuple[DetectionRule, ...] = (
         rule_id="omission.size_feedback",
         hallucination_type="信息遗漏",
         reason="知识库包含用户反馈偏大半码和选小建议，回复却概括为尺码标准不偏。",
-        reply_any=("尺码标准", "不偏大也不偏小"),
+        reply_any=("尺码标准", "尺码完全标准", "不偏大也不偏小", "照常买即可"),
         knowledge_all=("偏大半码",),
     ),
 )
@@ -201,6 +232,14 @@ def _contains_any(text: str, tokens: tuple[str, ...]) -> bool:
     if not tokens:
         return True
     return any(token in text for token in tokens)
+
+
+def _contains_any_groups(text: str, token_groups: tuple[tuple[str, ...], ...]) -> bool:
+    return all(_contains_any(text, tokens) for tokens in token_groups)
+
+
+def _contains_none(text: str, tokens: tuple[str, ...]) -> bool:
+    return all(token not in text for token in tokens)
 
 
 __all__ = [
