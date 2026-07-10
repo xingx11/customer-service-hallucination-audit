@@ -25,7 +25,7 @@
 
 ## Stage 4 Status
 
-第四阶段聚焦最终交付收尾：不再新增 detector 能力或运行时依赖，而是完成发布准备计划、发布检查清单、最终文档复核、质量门禁、安装/CLI smoke test、阶段四交付报告和 `v1.0.0` 标签准备。当前阶段四已建立计划入口、发布检查清单、交付复核记录和质量 smoke 记录，后续任务按 `tasks/stage-4-plan.md` 和 `tasks/stage-4-todo.md` 执行。
+第四阶段聚焦最终交付收尾：不再新增 detector 能力或运行时依赖，而是完成发布准备计划、发布检查清单、最终文档复核、质量门禁、安装/CLI smoke test、阶段四交付报告和 `v1.0.0` 标签准备。当前阶段四已完成计划入口、发布检查清单、交付复核记录、质量 smoke 记录、阶段四交付报告和 `1.0.0` 版本元数据更新，合并 main 后可按 `docs/RELEASE_CHECKLIST.md` 打 `v1.0.0` 标签。
 
 项目后续阶段收敛为：
 
@@ -33,7 +33,7 @@
 v0.1.0  阶段一：离线评测 MVP，已完成
 v0.2.0  阶段二：鲁棒性与可解释性，已完成
 v0.3.0  阶段三：Adapter + 最小 LLM 接入，已完成
-v1.0.0  阶段四：最终交付收尾，进行中
+v1.0.0  阶段四：最终交付收尾，已完成
 ```
 
 阶段三规划文档：
@@ -168,7 +168,7 @@ def calculate_f1(precision: float, recall: float) -> float:
 - 默认 packaged data、deterministic detector 和 mock detector 的 CLI smoke test 均可离线运行。
 - `llm` detector 缺少环境变量时清晰失败，且不影响默认质量门禁。
 - `scripts/quality.ps1`、pre-commit、pytest、ruff 和 mypy 发布前全部通过。
-- package/CLI 版本在最终收尾任务更新为 `1.0.0`，CHANGELOG 增加 `1.0.0` 发布段落。
+- package/CLI 版本已更新为 `1.0.0`，CHANGELOG 已增加 `1.0.0` 发布段落。
 - 阶段四最终报告已提交；合并 main 后按 `docs/RELEASE_CHECKLIST.md` 打 `v1.0.0` annotated tag。
 
 ## Resolved Decisions And Follow-ups
@@ -181,8 +181,8 @@ def calculate_f1(precision: float, recall: float) -> float:
 - 阶段三边界：优先完成 adapter contract、mock adapter 和显式 opt-in 的最小 LLM adapter；多套件 orchestration、复杂 suite 配置和报告回归比较移出阶段三。
 - detector 选择：CLI 当前支持 `--detector deterministic|mock|llm`；`deterministic` 是默认离线路径，`mock` 只生成稳定合成结果用于验证 adapter 注入和报告链路，`llm` 只在显式选择且环境变量齐全时调用 OpenAI-compatible chat completions endpoint。
 - LLM 输出边界：当前已定义只依据用户问题、系统回复和知识库的 prompt，以及 `case_id`、`is_hallucination`、`hallucination_type`、`reasons`、`rule_ids` 的最小 JSON schema、离线 parser 和 fake client 测试边界。
-- 版本元数据跟进：`v0.3.0` 已作为阶段三交付标签；`v1.0.0` 版本提升留到阶段四最终收尾任务。
+- 版本元数据跟进：`v0.3.0` 已作为阶段三交付标签；阶段四最终收尾已把 package/CLI 版本更新为 `1.0.0`。
 - LLM 接入边界：真实 LLM 只作为显式选择路径，不进入默认 CI；密钥只从环境变量读取，不写入报告或日志。
 - 阶段四边界：最终阶段只做发布准备、文档复核、质量验证、安装/CLI smoke test、最终报告和标签准备；`.env.example` 暂不新增，因为应用不自动读取 `.env`。
 - 阶段四文档复核：README、SPEC、DEVELOPMENT、CHANGELOG、任务清单和阶段一到阶段三交付报告链接已复核；阶段四最终报告保留到 Task 27。
-- 阶段四质量验证：安装、质量门禁、默认 CLI、mock CLI 和 LLM 缺配置路径已通过 Task 26 验证；`1.0.0` 版本提升和阶段四最终报告保留到 Task 27。
+- 阶段四质量验证：安装、质量门禁、默认 CLI、mock CLI 和 LLM 缺配置路径已通过 Task 26 验证；阶段四最终报告和 `1.0.0` 版本提升已在 Task 27 完成。

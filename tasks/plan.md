@@ -25,14 +25,14 @@
 
 ### Phase 3: v1.0.0 Release Closeout
 
-- [ ] Task 27: 完成 `v1.0.0` 发布收尾。
+- [x] Task 27: 完成 `v1.0.0` 发布收尾。
 
 ## Checkpoints
 
 - [x] Release Scope Locked: 阶段四范围固定为最终交付准备，不再新增 detector 能力。
 - [x] Documentation Ready: README、SPEC、CHANGELOG、开发文档和交付报告链接一致。
 - [x] Release Gate Passed: 质量门禁、pre-commit、安装和 CLI smoke test 均通过。
-- [ ] v1.0.0 Ready: 版本、CHANGELOG、最终报告和打标签步骤准备完成。
+- [x] v1.0.0 Ready: 版本、CHANGELOG、最终报告和打标签步骤准备完成。
 
 ## Boundaries
 

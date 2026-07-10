@@ -12,7 +12,7 @@
 v0.1.0  阶段一：离线评测 MVP，已完成
 v0.2.0  阶段二：鲁棒性与可解释性，已完成
 v0.3.0  阶段三：Adapter + 最小 LLM 接入，已完成
-v1.0.0  阶段四：最终交付收尾，进行中
+v1.0.0  阶段四：最终交付收尾，已完成
 ```
 
 ## Assumptions
@@ -72,15 +72,15 @@ v1.0.0  阶段四：最终交付收尾，进行中
 
 ### Phase 3: v1.0.0 Release Closeout
 
-- [ ] Task 27: 完成 `v1.0.0` 发布收尾。
+- [x] Task 27: 完成 `v1.0.0` 发布收尾。
 
 ### Checkpoint: v1.0.0 Ready
 
-- [ ] package/CLI 版本更新为 `1.0.0`。
-- [ ] CHANGELOG 增加 `1.0.0` 发布段落。
-- [ ] 阶段四最终 Markdown/JSON 交付报告生成并提交。
-- [ ] README、SPEC、DEVELOPMENT 标记阶段四完成。
-- [ ] 合并到 main 后按发布检查清单打 `v1.0.0` annotated tag。
+- [x] package/CLI 版本更新为 `1.0.0`。
+- [x] CHANGELOG 增加 `1.0.0` 发布段落。
+- [x] 阶段四最终 Markdown/JSON 交付报告生成并提交。
+- [x] README、SPEC、DEVELOPMENT 标记阶段四完成。
+- [x] 合并到 main 后打 `v1.0.0` annotated tag 的步骤已写入发布检查清单。
 
 ## Out Of Scope For Stage 4
 
@@ -118,3 +118,9 @@ v1.0.0  阶段四：最终交付收尾，进行中
 - 最终质量门禁和 CLI smoke test 结果记录在 `docs/QUALITY_SMOKE.md`，作为 Task 27 发布收尾的验证依据。
 - CLI smoke test 使用临时输出目录运行并清理生成物，避免提交 `reports/` 或临时报告。
 - `llm` detector 只验证缺少环境变量时的明确失败路径；真实 LLM 调用仍不进入默认质量门禁。
+
+## Resolved Task 27 Decisions
+
+- `1.0.0` 版本号写入 package 单一版本来源，并同步 CLI/scaffold 测试期望。
+- 阶段四最终交付报告使用 deterministic 默认路径生成，和阶段一到阶段三报告一样纳入 `tests/test_delivery_reports.py` 一致性测试。
+- 实际 annotated tag 需要在本 PR 合并到 main 后执行，避免标签指向未合并分支提交。

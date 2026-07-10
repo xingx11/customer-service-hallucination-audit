@@ -6,18 +6,23 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-07-10
+
 ### Added
 
 - Stage-four release-readiness planning documents for final `v1.0.0` delivery closeout.
 - Release checklist covering documentation review, local quality gates, CLI smoke tests, packaged data checks, PR review, and tagging steps.
 - Delivery review record for the final documentation and committed report link audit.
 - Quality and CLI smoke record for install, full quality gate, default detector, mock detector, and LLM missing-configuration behavior.
+- Stage-four Markdown and JSON delivery reports under `docs/reports/`.
 
 ### Changed
 
 - Updated README, SPEC, development docs, and active task pointers to make stage four the current release-readiness phase.
 - Marked stage-four documentation review complete and moved the active next step to final quality and CLI smoke verification.
 - Marked final quality and CLI smoke verification complete and moved the active next step to `v1.0.0` release closeout.
+- Released package and CLI version metadata as `1.0.0`.
+- Marked stage four complete and documented the post-merge `v1.0.0` tagging step.
 
 ## [0.3.0] - 2026-07-10
 

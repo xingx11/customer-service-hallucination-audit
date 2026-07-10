@@ -2,7 +2,7 @@
 
 面向客服自动回复场景的幻觉检测评测项目。项目会读取 20 条客服回复、对应知识库和人工标注，自动判断回复是否存在幻觉，输出检测结果、检出率指标和误判分析。
 
-当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；第二阶段鲁棒性与可解释性增强已完成并打 `v0.2.0` 标签；第三阶段 Adapter + 最小 LLM 接入闭环已完成并打 `v0.3.0` 标签，支持 `deterministic`、`mock` 与显式 opt-in 的 `llm` detector 路径。项目当前进入第四阶段最终交付收尾，目标是完成 `v1.0.0` 发布准备；默认命令可读取随包数据并生成 Markdown/JSON 报告，阶段一、阶段二和阶段三交付报告均已提交在 `docs/reports/` 下，并随当前流水线格式保持一致。
+当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；第二阶段鲁棒性与可解释性增强已完成并打 `v0.2.0` 标签；第三阶段 Adapter + 最小 LLM 接入闭环已完成并打 `v0.3.0` 标签；第四阶段最终交付收尾已完成，代码版本为 `1.0.0`，合并 main 后可按发布检查清单打 `v1.0.0` 标签。默认命令可读取随包数据并生成 Markdown/JSON 报告，阶段一到阶段四交付报告均已提交在 `docs/reports/` 下，并随当前流水线格式保持一致。
 
 ## 为什么选择这个题
 
@@ -163,6 +163,11 @@ total=20, precision=1.000, recall=1.000, f1=1.000
 - [Markdown 检测报告](docs/reports/stage-3-report.md)
 - [JSON 结构化报告](docs/reports/stage-3-report.json)
 
+阶段四交付报告：
+
+- [Markdown 检测报告](docs/reports/stage-4-report.md)
+- [JSON 结构化报告](docs/reports/stage-4-report.json)
+
 阶段二规划：
 
 - [阶段二实施计划](tasks/stage-2-plan.md)
@@ -187,20 +192,21 @@ total=20, precision=1.000, recall=1.000, f1=1.000
 v0.1.0  阶段一：离线评测 MVP，已完成
 v0.2.0  阶段二：鲁棒性与可解释性，已完成
 v0.3.0  阶段三：Adapter + 最小 LLM 接入，已完成
-v1.0.0  阶段四：最终交付收尾，进行中
+v1.0.0  阶段四：最终交付收尾，已完成
 ```
 
-## 第四阶段方向
+## 第四阶段收尾
 
-第四阶段不再推进功能扩展，而是完成正式交付前的发布准备：
+第四阶段没有继续推进功能扩展，而是完成正式交付前的发布准备：
 
-- 最终复核 README、SPEC、CHANGELOG、开发文档和交付报告链接。
-- 使用 `docs/RELEASE_CHECKLIST.md` 固化质量门禁、CLI smoke test、安装验证和打标签步骤。
-- 使用 `docs/DELIVERY_REVIEW.md` 记录最终文档与交付复核结果。
-- 使用 `docs/QUALITY_SMOKE.md` 记录安装、质量门禁和 CLI smoke test 结果。
+- 已复核 README、SPEC、CHANGELOG、开发文档和交付报告链接。
+- 已使用 `docs/RELEASE_CHECKLIST.md` 固化质量门禁、CLI smoke test、安装验证和打标签步骤。
+- 已使用 `docs/DELIVERY_REVIEW.md` 记录最终文档与交付复核结果。
+- 已使用 `docs/QUALITY_SMOKE.md` 记录安装、质量门禁和 CLI smoke test 结果。
+- 已生成阶段四 Markdown/JSON 交付报告。
 - 保持默认 deterministic 路径离线可复现，mock/LLM 路径只作为显式选择。
 - 不新增 `.env` 自动加载、provider SDK 或运行时依赖。
-- 在最后收尾任务中更新 `1.0.0` 版本、生成阶段四交付报告，并在合并 main 后打 `v1.0.0` 标签。
+- 已更新 `1.0.0` 版本；合并 main 后按 `docs/RELEASE_CHECKLIST.md` 打 `v1.0.0` 标签。
 
 真实 LLM API 不进入默认路径，必须显式选择并通过环境变量配置；默认质量门禁仍然离线运行。
 
