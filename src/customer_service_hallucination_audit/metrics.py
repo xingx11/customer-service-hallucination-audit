@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Iterable
 
 from customer_service_hallucination_audit.models import (
+    HALLUCINATION_TYPES,
     DetectionResult,
     ErrorCase,
     ErrorType,
     GroundTruthLabel,
+    HallucinationType,
     MetricsSummary,
+    TypeMetricsSummary,
 )
 from customer_service_hallucination_audit.validation import (
     ensure_matching_ids,
@@ -51,6 +55,53 @@ def calculate_metrics(
         false_positive=false_positive,
         true_negative=true_negative,
         false_negative=false_negative,
+    )
+
+
+def calculate_type_metrics(
+    predictions: Iterable[DetectionResult],
+    labels: Iterable[GroundTruthLabel],
+) -> tuple[TypeMetricsSummary, ...]:
+    """Calculate stable per-type counts for labels, predictions, and mismatches."""
+
+    predictions_by_id, labels_by_id = _index_comparable_records(predictions, labels)
+    label_counts: Counter[HallucinationType] = Counter()
+    predicted_counts: Counter[HallucinationType] = Counter()
+    true_positive_counts: Counter[HallucinationType] = Counter()
+    mismatch_counts: Counter[HallucinationType] = Counter()
+
+    for case_id in sorted(labels_by_id):
+        prediction = predictions_by_id[case_id]
+        label = labels_by_id[case_id]
+        label_type = _positive_hallucination_type(label, record_name="label")
+        prediction_type = _positive_hallucination_type(
+            prediction,
+            record_name="prediction",
+        )
+
+        if label_type is not None:
+            label_counts[label_type] += 1
+        if prediction_type is not None:
+            predicted_counts[prediction_type] += 1
+
+        if label_type is not None and label_type == prediction_type:
+            true_positive_counts[label_type] += 1
+            continue
+
+        if label_type is not None:
+            mismatch_counts[label_type] += 1
+        if prediction_type is not None:
+            mismatch_counts[prediction_type] += 1
+
+    return tuple(
+        TypeMetricsSummary(
+            hallucination_type=hallucination_type,
+            label_count=label_counts[hallucination_type],
+            predicted_count=predicted_counts[hallucination_type],
+            true_positive_count=true_positive_counts[hallucination_type],
+            mismatch_count=mismatch_counts[hallucination_type],
+        )
+        for hallucination_type in HALLUCINATION_TYPES
     )
 
 
@@ -133,6 +184,28 @@ def _ensure_matching_ids(
     )
 
 
+def _positive_hallucination_type(
+    record: DetectionResult | GroundTruthLabel,
+    *,
+    record_name: str,
+) -> HallucinationType | None:
+    if not record.is_hallucination:
+        return None
+
+    hallucination_type = record.hallucination_type
+    if hallucination_type is None:
+        raise MetricsValidationError(
+            f"{record_name} '{record.case_id}' hallucination_type must be set "
+            "when is_hallucination is true"
+        )
+    if hallucination_type not in HALLUCINATION_TYPES:
+        raise MetricsValidationError(
+            f"Unknown hallucination_type '{hallucination_type}' for "
+            f"{record_name} '{record.case_id}'"
+        )
+    return hallucination_type
+
+
 def _classify_error(
     prediction: DetectionResult,
     label: GroundTruthLabel,
@@ -154,5 +227,6 @@ __all__ = [
     "MetricsValidationError",
     "analyze_errors",
     "calculate_metrics",
+    "calculate_type_metrics",
     "select_error_cases",
 ]

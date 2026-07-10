@@ -45,7 +45,7 @@
 - `models.py`：定义输入样本、人工标注、检测结果、指标汇总等 dataclass。
 - `io.py`：读取 JSON，校验字段、ID 对齐、重复 ID 和未知类型。
 - `detector.py`：确定性规则检测，输出类型、原因和触发规则，不访问人工真值。
-- `metrics.py`：计算混淆矩阵、precision、recall、F1、漏检和误报。
+- `metrics.py`：计算混淆矩阵、precision、recall、F1、漏检、误报和按幻觉类型聚合的统计。
 - `reporting.py`：生成 Markdown 和结构化 JSON 报告内容。
 - `pipeline.py`：串联读取、检测、评估、报告生成。
 - `__main__.py`：只负责 CLI 参数解析和调用 pipeline。
@@ -115,10 +115,10 @@
 - 第一阶段质量门禁与文档状态同步
 - 第二阶段鲁棒性 fixture 与 detector 边界测试
 - 规则元数据模型与报告规则命中摘要
+- 按幻觉类型聚合的指标
 
 待完成：
 
-- 按幻觉类型聚合的指标
 - Markdown/JSON 报告解释增强
 - 第二阶段交付收尾与完整质量门禁
 

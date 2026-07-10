@@ -42,7 +42,7 @@
 
 ### Phase 3: Metrics And Reporting
 
-- [ ] Task 14: 增加按幻觉类型聚合的评估指标。
+- [x] Task 14: 增加按幻觉类型聚合的评估指标。
 - [ ] Task 15: 增强 Markdown/JSON 报告，展示类型表现、规则命中统计和高风险排序依据。
 
 ### Checkpoint: Reporting

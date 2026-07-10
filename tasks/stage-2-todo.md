@@ -132,14 +132,14 @@
 
 **Acceptance criteria:**
 
-- [ ] per-type 统计包含 label count、predicted count、true positive count 和 mismatch count。
-- [ ] 空输入、未知类型和无预测正例场景仍有清晰行为。
-- [ ] 统计结果按幻觉类型稳定排序。
+- [x] per-type 统计包含 label count、predicted count、true positive count 和 mismatch count。
+- [x] 空输入、未知类型和无预测正例场景仍有清晰行为。
+- [x] 统计结果按幻觉类型稳定排序。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_metrics.py`
-- [ ] Type check passes: `python -m mypy src`
+- [x] Tests pass: `python -m pytest tests/test_metrics.py`
+- [x] Type check passes: `python -m mypy src`
 
 **Dependencies:** Task 12
 

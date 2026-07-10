@@ -1,4 +1,5 @@
 from dataclasses import FrozenInstanceError
+from typing import cast
 
 import pytest
 
@@ -6,9 +7,11 @@ from customer_service_hallucination_audit.models import (
     DetectionResult,
     ErrorCase,
     GroundTruthLabel,
+    HallucinationType,
     MetricsSummary,
     ReplyCase,
     RuleMetadata,
+    TypeMetricsSummary,
 )
 
 
@@ -172,6 +175,17 @@ def test_metrics_summary_exposes_confusion_matrix_and_rates() -> None:
     assert metrics.recall == 1.0
     assert metrics.f1 == 1.0
     assert metrics.accuracy == 1.0
+
+
+def test_type_metrics_summary_rejects_unknown_hallucination_type() -> None:
+    with pytest.raises(ValueError, match="Unknown hallucination_type '未知类型'"):
+        TypeMetricsSummary(
+            hallucination_type=cast(HallucinationType, "未知类型"),
+            label_count=0,
+            predicted_count=0,
+            true_positive_count=0,
+            mismatch_count=0,
+        )
 
 
 def test_error_case_keeps_expected_and_predicted_context() -> None:
