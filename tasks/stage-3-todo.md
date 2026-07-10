@@ -64,14 +64,14 @@
 
 **Acceptance criteria:**
 
-- [ ] adapter contract 明确输入为 `ReplyCase` 序列，输出为 `DetectionResult` 序列。
-- [ ] contract 不依赖真实 LLM、网络、环境变量或 provider SDK。
-- [ ] pipeline 可注入 detector，默认行为不变。
+- [x] adapter contract 明确输入为 `ReplyCase` 序列，输出为 `DetectionResult` 序列。
+- [x] contract 不依赖真实 LLM、网络、环境变量或 provider SDK。
+- [x] pipeline 可注入 detector，默认行为不变。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_pipeline.py tests/test_detector.py`
-- [ ] Type check passes: `python -m mypy src`
+- [x] Tests pass: `python -m pytest tests/test_pipeline.py tests/test_detector.py`
+- [x] Type check passes: `python -m mypy src`
 
 **Dependencies:** Task 18
 

@@ -14,6 +14,7 @@ from customer_service_hallucination_audit.metrics import (
 )
 from customer_service_hallucination_audit.models import (
     DetectionResult,
+    Detector,
     ErrorCase,
     MetricsSummary,
     TypeMetricsSummary,
@@ -46,11 +47,12 @@ def run_audit(
     output_dir: Path,
     markdown_report_name: str = DEFAULT_MARKDOWN_REPORT_NAME,
     json_report_name: str = DEFAULT_JSON_REPORT_NAME,
+    detector: Detector = detect_replies,
 ) -> AuditRunResult:
     """Run detection, evaluation, and report rendering for one dataset."""
 
     dataset = load_audit_dataset(replies_path, labels_path)
-    results = detect_replies(dataset.replies)
+    results = tuple(detector(dataset.replies))
     metrics = calculate_metrics(results, dataset.labels)
     type_metrics = calculate_type_metrics(results, dataset.labels)
     error_cases = analyze_errors(results, dataset.labels)

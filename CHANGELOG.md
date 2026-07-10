@@ -9,6 +9,7 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 ### Added
 
 - Stage-three planning documents for release metadata cleanup, detector adapter boundaries, mock detector coverage, and minimal opt-in LLM detector integration.
+- Detector adapter contract so the pipeline can accept injected detectors while keeping the deterministic detector as the default.
 
 ### Changed
 
