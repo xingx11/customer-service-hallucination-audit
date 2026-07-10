@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -23,6 +24,7 @@ def test_cli_help_describes_input_and_output_options(
     assert exc_info.value.code == 0
     assert "--replies" in captured.out
     assert "--ground-truth" in captured.out
+    assert "--detector" in captured.out
     assert "--output-dir" in captured.out
 
 
@@ -31,6 +33,7 @@ def test_cli_parser_defers_default_input_resolution_to_runtime() -> None:
 
     assert args.replies is None
     assert args.ground_truth is None
+    assert args.detector == "deterministic"
     assert args.output_dir == Path("reports")
 
 
@@ -82,6 +85,37 @@ def test_cli_runs_with_packaged_default_inputs(
     assert "f1=" in captured.out
     assert (tmp_path / "report.md").exists()
     assert (tmp_path / "report.json").exists()
+
+
+def test_cli_runs_with_mock_detector(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    exit_code = main(["--detector", "mock", "--output-dir", str(tmp_path)])
+
+    captured = capsys.readouterr()
+    payload = json.loads((tmp_path / "report.json").read_text(encoding="utf-8"))
+    first_result = payload["results"][0]
+
+    assert exit_code == 0
+    assert "Metrics: total=20" in captured.out
+    assert first_result["case_id"] == "h01"
+    assert first_result["is_hallucination"] is True
+    assert first_result["hallucination_type"] == "信息编造"
+    assert first_result["rule_ids"] == ["mock.synthetic_signal"]
+
+
+def test_cli_returns_nonzero_for_unknown_detector(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    exit_code = main(["--detector", "unknown", "--output-dir", str(tmp_path)])
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert "Unknown detector adapter 'unknown'" in captured.err
+    assert not (tmp_path / "report.md").exists()
+    assert not (tmp_path / "report.json").exists()
 
 
 def test_cli_returns_nonzero_for_invalid_input_path(

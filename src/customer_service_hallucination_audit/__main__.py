@@ -10,6 +10,7 @@ from importlib.resources import as_file, files
 from pathlib import Path
 
 from customer_service_hallucination_audit import __version__
+from customer_service_hallucination_audit.detector import DETECTOR_ADAPTERS, select_detector
 from customer_service_hallucination_audit.pipeline import run_audit
 
 DEFAULT_DATA_PACKAGE = "customer_service_hallucination_audit.data"
@@ -37,6 +38,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to ground-truth labels JSON input. Defaults to packaged data/ground_truth.json.",
     )
     parser.add_argument(
+        "--detector",
+        default="deterministic",
+        help=(
+            "Detector adapter to run. "
+            f"Expected one of: {', '.join(DETECTOR_ADAPTERS)}. "
+            "Defaults to deterministic."
+        ),
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=DEFAULT_OUTPUT_DIR,
@@ -58,10 +68,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 DEFAULT_GROUND_TRUTH_RESOURCE,
                 resource_stack,
             )
+            detector = select_detector(args.detector)
             result = run_audit(
                 replies_path=replies_path,
                 labels_path=labels_path,
                 output_dir=args.output_dir,
+                detector=detector,
             )
     except (OSError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)

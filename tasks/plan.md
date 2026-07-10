@@ -22,7 +22,7 @@
 
 ### Phase 2: Offline Adapter Paths
 
-- [ ] Task 20: 接入 deterministic adapter 和 mock adapter。
+- [x] Task 20: 接入 deterministic adapter 和 mock adapter。
 - [ ] Task 21: 增加 LLM 输出 schema、prompt 模板和解析校验。
 
 ### Phase 3: Optional LLM Path And Delivery
@@ -33,7 +33,7 @@
 ## Checkpoints
 
 - [x] Adapter Foundation: CLI/package 版本策略清晰，pipeline 可接收不同 detector。
-- [ ] Offline Confidence: deterministic 和 mock 路径均可离线端到端运行。
+- [x] Offline Confidence: deterministic 和 mock 路径均可离线端到端运行。
 - [ ] Stage 3 Complete: LLM 路径显式 opt-in，默认质量门禁不依赖真实 LLM。
 
 ## Boundaries
