@@ -12,6 +12,7 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 - Detector adapter contract so the pipeline can accept injected detectors while keeping the deterministic detector as the default.
 - Deterministic and mock detector adapters with CLI selection via `--detector deterministic|mock`.
 - LLM prompt template, JSON output schema, and offline parser validation for converting structured model output to `DetectionResult`.
+- Optional `llm` detector selection backed by environment-only OpenAI-compatible configuration and offline fake-client tests.
 
 ### Changed
 

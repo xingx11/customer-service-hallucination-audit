@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
+import urllib.error
+import urllib.request
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import cast
+from typing import Protocol, cast
 
 from customer_service_hallucination_audit.models import (
     HALLUCINATION_TYPES,
@@ -40,6 +43,15 @@ LLM_OUTPUT_SCHEMA: dict[str, object] = {
         "rule_ids": {"type": "array", "items": {"type": "string"}},
     },
 }
+LLM_API_KEY_ENV_VAR = "CS_HALLUCINATION_AUDIT_LLM_API_KEY"
+LLM_ENDPOINT_ENV_VAR = "CS_HALLUCINATION_AUDIT_LLM_ENDPOINT"
+LLM_MODEL_ENV_VAR = "CS_HALLUCINATION_AUDIT_LLM_MODEL"
+LLM_ENV_VARS = (
+    LLM_API_KEY_ENV_VAR,
+    LLM_ENDPOINT_ENV_VAR,
+    LLM_MODEL_ENV_VAR,
+)
+LLM_REQUEST_TIMEOUT_SECONDS = 30.0
 
 
 class UnknownDetectorError(ValueError):
@@ -48,6 +60,22 @@ class UnknownDetectorError(ValueError):
 
 class LlmOutputValidationError(ValueError):
     """Raised when structured LLM output cannot be converted to a detection result."""
+
+
+class LlmConfigurationError(ValueError):
+    """Raised when the opt-in LLM detector is missing required configuration."""
+
+
+class LlmClientError(ValueError):
+    """Raised when an LLM client cannot return a usable completion."""
+
+
+class LlmClient(Protocol):
+    """Minimal completion client contract used by the LLM detector adapter."""
+
+    def complete(self, prompt: str) -> str:
+        """Return raw model output for one prompt."""
+        ...
 
 
 @dataclass(frozen=True)
@@ -364,6 +392,47 @@ def mock_detector(reply_cases: Sequence[ReplyCase]) -> tuple[DetectionResult, ..
     return tuple(results)
 
 
+@dataclass(frozen=True)
+class OpenAiCompatibleLlmClient:
+    """Small stdlib client for explicit OpenAI-compatible chat completions."""
+
+    endpoint: str
+    api_key: str
+    model: str
+    timeout_seconds: float = LLM_REQUEST_TIMEOUT_SECONDS
+
+    def complete(self, prompt: str) -> str:
+        body = json.dumps(
+            {
+                "model": self.model,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0,
+            },
+            ensure_ascii=False,
+        ).encode("utf-8")
+        request = urllib.request.Request(
+            self.endpoint,
+            data=body,
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                response_body = response.read().decode("utf-8")
+        except urllib.error.URLError as exc:
+            raise LlmClientError(f"LLM request failed: {exc.reason}") from exc
+
+        try:
+            payload: object = json.loads(response_body)
+        except json.JSONDecodeError as exc:
+            raise LlmClientError(f"LLM response must be valid JSON: {exc.msg}") from exc
+        return _extract_openai_compatible_message_content(payload)
+
+
 def build_llm_prompt(reply_case: ReplyCase) -> str:
     """Build the minimal prompt for a structured LLM detector call."""
 
@@ -410,9 +479,53 @@ def parse_llm_detection_result(reply_case: ReplyCase, raw_output: str) -> Detect
     )
 
 
+def create_llm_detector(client: LlmClient) -> Detector:
+    """Create an LLM detector adapter from an injectable completion client."""
+
+    def detector(reply_cases: Sequence[ReplyCase]) -> tuple[DetectionResult, ...]:
+        results: list[DetectionResult] = []
+        for reply_case in reply_cases:
+            prompt = build_llm_prompt(reply_case)
+            raw_output = client.complete(prompt)
+            results.append(parse_llm_detection_result(reply_case, raw_output))
+        return tuple(results)
+
+    return detector
+
+
+def llm_detector(reply_cases: Sequence[ReplyCase]) -> tuple[DetectionResult, ...]:
+    """Opt-in LLM detector adapter configured exclusively from environment variables."""
+
+    detector = create_llm_detector(load_llm_client_from_env())
+    return tuple(detector(reply_cases))
+
+
+def load_llm_client_from_env(
+    env: Mapping[str, str] | None = None,
+) -> OpenAiCompatibleLlmClient:
+    """Build the default LLM client from explicit environment configuration."""
+
+    env_mapping = os.environ if env is None else env
+    missing = tuple(env_var for env_var in LLM_ENV_VARS if not env_mapping.get(env_var, "").strip())
+    if missing:
+        missing_names = ", ".join(missing)
+        raise LlmConfigurationError(
+            "LLM detector requires environment variables: "
+            f"{missing_names}. The default detector remains offline; "
+            "set --detector deterministic to use the reproducible rule path."
+        )
+
+    return OpenAiCompatibleLlmClient(
+        endpoint=env_mapping[LLM_ENDPOINT_ENV_VAR].strip(),
+        api_key=env_mapping[LLM_API_KEY_ENV_VAR].strip(),
+        model=env_mapping[LLM_MODEL_ENV_VAR].strip(),
+    )
+
+
 DETECTOR_ADAPTERS: dict[str, Detector] = {
     "deterministic": deterministic_detector,
     "mock": mock_detector,
+    "llm": llm_detector,
 }
 
 
@@ -426,6 +539,28 @@ def select_detector(name: str) -> Detector:
         raise UnknownDetectorError(
             f"Unknown detector adapter '{name}'. Expected one of: {expected}"
         ) from exc
+
+
+def _extract_openai_compatible_message_content(payload: object) -> str:
+    if not isinstance(payload, dict):
+        raise LlmClientError("LLM response must be a JSON object")
+
+    choices = payload.get("choices")
+    if not isinstance(choices, list) or not choices:
+        raise LlmClientError("LLM response missing non-empty 'choices'")
+
+    first_choice = choices[0]
+    if not isinstance(first_choice, dict):
+        raise LlmClientError("LLM response choice must be a JSON object")
+
+    message = first_choice.get("message")
+    if not isinstance(message, dict):
+        raise LlmClientError("LLM response choice missing message object")
+
+    content = message.get("content")
+    if not isinstance(content, str) or not content:
+        raise LlmClientError("LLM response message content must be a non-empty string")
+    return content
 
 
 def _parse_llm_json_object(raw_output: str) -> Mapping[str, object]:
@@ -536,16 +671,27 @@ def _contains_none(text: str, tokens: tuple[str, ...]) -> bool:
 __all__ = [
     "DETECTOR_ADAPTERS",
     "DETECTION_RULES",
+    "LLM_API_KEY_ENV_VAR",
+    "LLM_ENDPOINT_ENV_VAR",
+    "LLM_ENV_VARS",
+    "LLM_MODEL_ENV_VAR",
     "LLM_OUTPUT_SCHEMA",
     "MOCK_RULE_ID",
     "NO_RULE_REASON",
     "DetectionRule",
+    "LlmClient",
+    "LlmClientError",
+    "LlmConfigurationError",
     "LlmOutputValidationError",
+    "OpenAiCompatibleLlmClient",
     "UnknownDetectorError",
     "build_llm_prompt",
+    "create_llm_detector",
     "detect_replies",
     "detect_reply",
     "deterministic_detector",
+    "llm_detector",
+    "load_llm_client_from_env",
     "mock_detector",
     "parse_llm_detection_result",
     "select_detector",

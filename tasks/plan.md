@@ -27,14 +27,14 @@
 
 ### Phase 3: Optional LLM Path And Delivery
 
-- [ ] Task 22: 增加可选 LLM adapter 与 CLI detector 选择。
+- [x] Task 22: 增加可选 LLM adapter 与 CLI detector 选择。
 - [ ] Task 23: 完成第三阶段交付报告、文档和质量门禁。
 
 ## Checkpoints
 
 - [x] Adapter Foundation: CLI/package 版本策略清晰，pipeline 可接收不同 detector。
 - [x] Offline Confidence: deterministic 和 mock 路径均可离线端到端运行。
-- [ ] Stage 3 Complete: LLM 路径显式 opt-in，默认质量门禁不依赖真实 LLM。
+- [ ] Stage 3 Complete: LLM 路径显式 opt-in，默认质量门禁不依赖真实 LLM，待 Task 23 收尾。
 
 ## Boundaries
 

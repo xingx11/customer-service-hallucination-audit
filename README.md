@@ -2,7 +2,7 @@
 
 面向客服自动回复场景的幻觉检测评测项目。项目会读取 20 条客服回复、对应知识库和人工标注，自动判断回复是否存在幻觉，输出检测结果、检出率指标和误判分析。
 
-当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；第二阶段鲁棒性与可解释性增强已完成并打 `v0.2.0` 标签；第三阶段调整为 Adapter + 最小 LLM 接入闭环，并已支持 `deterministic` 与 `mock` 两条离线 detector 路径。默认命令可读取随包数据并生成 Markdown/JSON 报告；阶段一和阶段二交付报告均已提交在 `docs/reports/` 下，并随当前流水线格式保持一致。
+当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；第二阶段鲁棒性与可解释性增强已完成并打 `v0.2.0` 标签；第三阶段调整为 Adapter + 最小 LLM 接入闭环，并已支持 `deterministic`、`mock` 与显式 opt-in 的 `llm` detector 路径。默认命令可读取随包数据并生成 Markdown/JSON 报告；阶段一和阶段二交付报告均已提交在 `docs/reports/` 下，并随当前流水线格式保持一致。
 
 ## 为什么选择这个题
 
@@ -17,7 +17,7 @@
 - 代码质量：ruff、mypy
 - 自动化：GitHub Actions
 
-这个项目优先采用确定性规则引擎，后续可扩展 LLM 适配器。默认实现不依赖外部 API，保证评测可离线复现。
+这个项目优先采用确定性规则引擎，同时提供可选 LLM 适配器边界。默认实现不依赖外部 API，保证评测可离线复现。
 
 ## 精简原则
 
@@ -67,6 +67,17 @@ python -m customer_service_hallucination_audit --output-dir reports
 ```bash
 python -m customer_service_hallucination_audit --detector mock --output-dir reports
 ```
+
+`llm` detector 是显式 opt-in 路径，仅在用户选择时读取环境变量并调用 OpenAI-compatible chat completions endpoint。默认路径、测试和质量门禁不会依赖真实 LLM：
+
+```powershell
+$env:CS_HALLUCINATION_AUDIT_LLM_API_KEY = "<api-key>"
+$env:CS_HALLUCINATION_AUDIT_LLM_ENDPOINT = "https://example.com/v1/chat/completions"
+$env:CS_HALLUCINATION_AUDIT_LLM_MODEL = "<model-name>"
+python -m customer_service_hallucination_audit --detector llm --output-dir reports
+```
+
+缺少任一环境变量时，`llm` 路径会返回清晰错误并停止，不会静默降级为确定性结果。
 
 也可以显式指定输入文件：
 
@@ -175,7 +186,7 @@ v1.0.0  阶段四：最终交付收尾
 - `deterministic` adapter，默认仍使用现有确定性规则检测器。（已完成）
 - `mock` adapter，用于离线测试 adapter 注入和报告链路。（已完成）
 - LLM prompt、输出 schema 和解析校验。（已完成）
-- 可选 `llm` adapter 与 CLI detector 选择参数。
+- 可选 `llm` adapter 与 CLI detector 选择参数。（已完成）
 
 真实 LLM API 不进入默认路径，必须显式选择并通过环境变量配置；默认质量门禁仍然离线运行。
 
