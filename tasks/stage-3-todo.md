@@ -143,15 +143,16 @@
 
 **Acceptance criteria:**
 
-- [ ] CLI 支持 `--detector deterministic|mock|llm`，默认值为 `deterministic`。
-- [ ] `llm` 路径缺少 API key 或配置时给出清晰错误，不影响默认路径。
-- [ ] LLM adapter 可通过 fake client 离线测试，不进行真实网络调用。
+- [x] CLI 支持 `--detector deterministic|mock|llm`，默认值为 `deterministic`。
+- [x] `llm` 路径缺少 API key 或配置时给出清晰错误，不影响默认路径。
+- [x] LLM adapter 可通过 fake client 离线测试，不进行真实网络调用。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_cli.py tests/test_pipeline.py tests/test_detector.py`
-- [ ] Manual check: `python -m customer_service_hallucination_audit --detector deterministic --output-dir reports`
-- [ ] Manual check: `python -m customer_service_hallucination_audit --detector mock --output-dir reports`
+- [x] Tests pass: `py -3.13 -m pytest tests/test_cli.py tests/test_pipeline.py tests/test_detector.py`
+- [x] Manual check: `py -3.13 -m customer_service_hallucination_audit --detector deterministic --output-dir <temp>`
+- [x] Manual check: `py -3.13 -m customer_service_hallucination_audit --detector mock --output-dir <temp>`
+- [x] Manual check: `py -3.13 -m customer_service_hallucination_audit --detector llm --output-dir <temp>` fails clearly when LLM env vars are missing.
 
 **Dependencies:** Task 21
 

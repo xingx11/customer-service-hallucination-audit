@@ -7,6 +7,11 @@ import pytest
 
 from customer_service_hallucination_audit import __version__
 from customer_service_hallucination_audit.__main__ import build_parser, main
+from customer_service_hallucination_audit.detector import (
+    LLM_API_KEY_ENV_VAR,
+    LLM_ENDPOINT_ENV_VAR,
+    LLM_MODEL_ENV_VAR,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REPLIES_PATH = REPO_ROOT / "data" / "replies.json"
@@ -25,6 +30,7 @@ def test_cli_help_describes_input_and_output_options(
     assert "--replies" in captured.out
     assert "--ground-truth" in captured.out
     assert "--detector" in captured.out
+    assert "deterministic, mock, llm" in captured.out
     assert "--output-dir" in captured.out
 
 
@@ -114,6 +120,26 @@ def test_cli_returns_nonzero_for_unknown_detector(
     captured = capsys.readouterr()
     assert exit_code == 1
     assert "Unknown detector adapter 'unknown'" in captured.err
+    assert not (tmp_path / "report.md").exists()
+    assert not (tmp_path / "report.json").exists()
+
+
+def test_cli_returns_nonzero_for_llm_detector_without_environment(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    for env_var in (LLM_API_KEY_ENV_VAR, LLM_ENDPOINT_ENV_VAR, LLM_MODEL_ENV_VAR):
+        monkeypatch.delenv(env_var, raising=False)
+
+    exit_code = main(["--detector", "llm", "--output-dir", str(tmp_path)])
+
+    captured = capsys.readouterr()
+    assert exit_code == 1
+    assert "LLM detector requires environment variables" in captured.err
+    assert LLM_API_KEY_ENV_VAR in captured.err
+    assert LLM_ENDPOINT_ENV_VAR in captured.err
+    assert LLM_MODEL_ENV_VAR in captured.err
     assert not (tmp_path / "report.md").exists()
     assert not (tmp_path / "report.json").exists()
 

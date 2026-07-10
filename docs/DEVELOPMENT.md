@@ -6,7 +6,7 @@
 
 项目第一阶段已经完成，并已打 `v0.1.0` 标签：核心离线评测流水线可通过 CLI 运行，默认数据随包发布，阶段一 Markdown/JSON 交付报告已提交，并有测试验证交付报告与当前 pipeline 输出一致。第二阶段鲁棒性与可解释性增强也已完成，并已打 `v0.2.0` 标签：已交付鲁棒性样本、检测器边界测试、规则元数据模型、规则命中摘要、按类型聚合指标、报告解释增强和阶段二 Markdown/JSON 交付报告。
 
-当前处于第三阶段功能开发：阶段三调整为 Adapter + 最小 LLM 接入闭环，已完成版本/发布元数据一致性、detector adapter contract、deterministic adapter、mock adapter、LLM prompt、输出 schema 和离线解析校验，后续继续接入显式 opt-in 的 LLM adapter。默认路径继续保持离线、确定性、无真实 LLM API 依赖。
+当前处于第三阶段功能开发：阶段三调整为 Adapter + 最小 LLM 接入闭环，已完成版本/发布元数据一致性、detector adapter contract、deterministic adapter、mock adapter、LLM prompt、输出 schema、离线解析校验，以及显式 opt-in 的 `llm` adapter 与 CLI detector 选择。默认路径继续保持离线、确定性、无真实 LLM API 依赖。
 
 第一阶段完成标准已经满足：
 
@@ -25,8 +25,8 @@
 - 标注分布：18 条幻觉、2 条非幻觉，覆盖政策编造、政策偏差、参数编造、优惠编造、信息编造、能力越界、安全误导、信息遗漏。
 - 当前源码：核心模型、JSON 读取、确定性规则检测、指标计算、报告生成和 CLI 端到端流水线已经拆分到独立模块；默认数据也随包发布，安装后无需源码根目录即可运行。
 - 当前 adapter 边界：`Detector` contract 定义输入为 `ReplyCase` 序列、输出为 `DetectionResult` 序列；`run_audit` 可注入 detector，默认仍使用确定性规则检测器。
-- 当前 CLI detector：`--detector deterministic` 是默认规则检测器路径；`--detector mock` 使用稳定合成结果验证 adapter 注入和报告链路。
-- 当前 LLM parser：prompt 明确只依据用户问题、系统回复和知识库；parser 校验 `case_id`、`is_hallucination`、`hallucination_type`、`reasons`、`rule_ids` 后转换为 `DetectionResult`。
+- 当前 CLI detector：`--detector deterministic` 是默认规则检测器路径；`--detector mock` 使用稳定合成结果验证 adapter 注入和报告链路；`--detector llm` 是显式 opt-in 路径。
+- 当前 LLM parser/adapter：prompt 明确只依据用户问题、系统回复和知识库；parser 校验 `case_id`、`is_hallucination`、`hallucination_type`、`reasons`、`rule_ids` 后转换为 `DetectionResult`；`llm` adapter 只从 `CS_HALLUCINATION_AUDIT_LLM_API_KEY`、`CS_HALLUCINATION_AUDIT_LLM_ENDPOINT` 和 `CS_HALLUCINATION_AUDIT_LLM_MODEL` 读取配置。
 - 当前工具：`scripts/quality.ps1` 依次运行 ruff、format check、mypy、pytest；CI 还会运行 pre-commit。
 - 当前本地状态：CodeGraph 已初始化，`.codegraph/` 是本地索引目录，不应提交。
 - 当前计划入口：`tasks/plan.md` 和 `tasks/todo.md` 已指向第三阶段；阶段三专属文档为 `tasks/stage-3-plan.md` 和 `tasks/stage-3-todo.md`。
@@ -128,18 +128,18 @@
 - detector adapter contract 与 pipeline 注入边界
 - deterministic/mock detector adapter 与 CLI 选择
 - LLM prompt、输出 schema 和离线解析校验
+- 可选 LLM adapter 与 CLI detector 选择
 
 待完成：
 
-- Task 22：增加可选 LLM adapter 与 CLI detector 选择。
 - Task 23：完成第三阶段交付收尾。
 
 ## 后续建议
 
 - 阶段三计划：`tasks/stage-3-plan.md`
 - 阶段三任务清单：`tasks/stage-3-todo.md`
-- 下一步建议做 Task 22，增加可选 LLM adapter 与 CLI detector 选择。
-- 阶段三会接入显式 opt-in 的最小 LLM 路径，但默认 detector 和质量门禁仍保持离线可复现。
+- 下一步建议做 Task 23，完成第三阶段交付报告、文档和质量门禁收尾。
+- 阶段三已经接入显式 opt-in 的最小 LLM 路径，但默认 detector 和质量门禁仍保持离线可复现。
 
 ## 开发时的默认命令
 

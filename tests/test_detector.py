@@ -5,12 +5,18 @@ import pytest
 
 from customer_service_hallucination_audit.detector import (
     DETECTION_RULES,
+    LLM_API_KEY_ENV_VAR,
+    LLM_ENDPOINT_ENV_VAR,
+    LLM_MODEL_ENV_VAR,
+    LlmConfigurationError,
     LlmOutputValidationError,
     UnknownDetectorError,
     build_llm_prompt,
+    create_llm_detector,
     detect_replies,
     detect_reply,
     deterministic_detector,
+    llm_detector,
     mock_detector,
     parse_llm_detection_result,
     select_detector,
@@ -28,6 +34,16 @@ REPLIES_PATH = Path(__file__).resolve().parents[1] / "data" / "replies.json"
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 STAGE_2_ROBUSTNESS_REPLIES_PATH = FIXTURES_DIR / "stage_2_robustness_replies.json"
 STAGE_2_ROBUSTNESS_GROUND_TRUTH_PATH = FIXTURES_DIR / "stage_2_robustness_ground_truth.json"
+
+
+class FakeLlmClient:
+    def __init__(self, outputs: list[str]) -> None:
+        self.outputs = outputs
+        self.prompts: list[str] = []
+
+    def complete(self, prompt: str) -> str:
+        self.prompts.append(prompt)
+        return self.outputs.pop(0)
 
 
 def load_default_reply_cases() -> dict[str, ReplyCase]:
@@ -128,10 +144,70 @@ def test_mock_adapter_returns_stable_synthetic_results() -> None:
     assert select_detector("mock")(replies) == results
 
 
+def test_create_llm_detector_uses_fake_client_and_parser_offline() -> None:
+    replies = tuple(load_default_reply_cases()[case_id] for case_id in ("h01", "h12"))
+    client = FakeLlmClient(
+        [
+            json.dumps(
+                {
+                    "case_id": "h01",
+                    "is_hallucination": True,
+                    "hallucination_type": HALLUCINATION_TYPES[0],
+                    "reasons": ["LLM flagged a policy mismatch."],
+                    "rule_ids": ["llm.policy_return_window"],
+                },
+                ensure_ascii=False,
+            ),
+            json.dumps(
+                {
+                    "case_id": "h12",
+                    "is_hallucination": False,
+                    "hallucination_type": None,
+                    "reasons": ["LLM found the reply consistent."],
+                    "rule_ids": [],
+                },
+                ensure_ascii=False,
+            ),
+        ]
+    )
+
+    detector = create_llm_detector(client)
+    results = detector(replies)
+
+    assert tuple(result.case_id for result in results) == ("h01", "h12")
+    assert results[0].is_hallucination is True
+    assert results[0].hallucination_type == HALLUCINATION_TYPES[0]
+    assert results[0].rule_ids == ("llm.policy_return_window",)
+    assert results[1].is_hallucination is False
+    assert results[1].hallucination_type is None
+    assert len(client.prompts) == 2
+    assert "case_id: h01" in client.prompts[0]
+    assert replies[0].system_reply in client.prompts[0]
+
+
+def test_llm_detector_requires_environment_configuration(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    for env_var in (LLM_API_KEY_ENV_VAR, LLM_ENDPOINT_ENV_VAR, LLM_MODEL_ENV_VAR):
+        monkeypatch.delenv(env_var, raising=False)
+    replies = tuple(load_default_reply_cases()[case_id] for case_id in ("h01",))
+
+    with pytest.raises(LlmConfigurationError) as exc_info:
+        llm_detector(replies)
+
+    message = str(exc_info.value)
+    assert "LLM detector requires environment variables" in message
+    assert LLM_API_KEY_ENV_VAR in message
+    assert LLM_ENDPOINT_ENV_VAR in message
+    assert LLM_MODEL_ENV_VAR in message
+    with pytest.raises(LlmConfigurationError):
+        select_detector("llm")(replies)
+
+
 def test_select_detector_rejects_unknown_adapter() -> None:
     with pytest.raises(
         UnknownDetectorError,
-        match="Unknown detector adapter 'unknown'. Expected one of: deterministic, mock",
+        match="Unknown detector adapter 'unknown'. Expected one of: deterministic, mock, llm",
     ):
         select_detector("unknown")
 

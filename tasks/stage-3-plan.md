@@ -30,6 +30,7 @@ v1.0.0  阶段四：最终交付收尾
 - 现有规则检测器作为 `deterministic` adapter，是默认和 CI 必跑路径。
 - `mock` adapter 用于验证 adapter 注入、CLI 选择和报告链路，不依赖网络。
 - `llm` adapter 是显式 opt-in 路径，负责 prompt 构造、调用 provider、解析结构化输出并校验为 `DetectionResult`。
+- 首版 `llm` client 使用标准库调用 OpenAI-compatible chat completions endpoint，不新增 provider SDK 运行时依赖。
 - LLM 输出必须符合最小 JSON schema：`case_id`、`is_hallucination`、`hallucination_type`、`reasons`、`rule_ids`。
 - LLM 解析失败、缺少 API key、返回未知类型时必须给出清晰错误，不静默降级为确定性结果。
 - 报告 schema 尽量保持现状；如需记录 detector 名称，优先使用小范围字段扩展并更新 golden-style 测试。
@@ -64,14 +65,14 @@ v1.0.0  阶段四：最终交付收尾
 
 ### Phase 3: Optional LLM Path And Delivery
 
-- [ ] Task 22: 增加可选 LLM adapter 与 CLI detector 选择。
+- [x] Task 22: 增加可选 LLM adapter 与 CLI detector 选择。
 - [ ] Task 23: 完成第三阶段交付报告、文档和质量门禁。
 
 ### Checkpoint: Stage 3 Complete
 
-- [ ] 默认命令仍离线可复现。
-- [ ] `--detector deterministic`、`--detector mock`、`--detector llm` 路径清晰。
-- [ ] LLM 路径缺少配置时失败信息可理解，且不会影响默认 CI。
+- [x] 默认命令仍离线可复现。
+- [x] `--detector deterministic`、`--detector mock`、`--detector llm` 路径清晰。
+- [x] LLM 路径缺少配置时失败信息可理解，且不会影响默认 CI。
 - [ ] README、SPEC、CHANGELOG、开发文档和阶段三交付报告已同步。
 - [ ] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1` 通过。
 - [ ] `pre-commit run --all-files` 通过。
@@ -97,6 +98,5 @@ v1.0.0  阶段四：最终交付收尾
 
 ## Open Questions
 
-- LLM adapter 首选 provider 是否固定为 OpenAI，还是先做 OpenAI-compatible HTTP 配置？
 - 阶段三交付报告是否只提交 deterministic 报告，还是同时提交 mock/LLM 示例报告？
 - LLM 返回 `rule_ids` 是使用 `llm.*` 虚拟规则 ID，还是允许为空并只在 `reasons` 中说明？
