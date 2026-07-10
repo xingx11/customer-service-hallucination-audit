@@ -12,7 +12,7 @@ GROUND_TRUTH_PATH = REPO_ROOT / "data" / "ground_truth.json"
 REPORTS_DIR = REPO_ROOT / "docs" / "reports"
 
 
-@pytest.mark.parametrize("report_prefix", ("stage-1", "stage-2"))
+@pytest.mark.parametrize("report_prefix", ("stage-1", "stage-2", "stage-3"))
 def test_committed_delivery_reports_match_pipeline_output(
     tmp_path: Path,
     report_prefix: str,

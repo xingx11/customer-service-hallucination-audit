@@ -8,4 +8,4 @@
 - [x] Task 20: 接入 deterministic adapter 和 mock adapter。
 - [x] Task 21: 增加 LLM 输出 schema、prompt 模板和解析校验。
 - [x] Task 22: 增加可选 LLM adapter 与 CLI detector 选择。
-- [ ] Task 23: 第三阶段交付收尾。
+- [x] Task 23: 第三阶段交付收尾。

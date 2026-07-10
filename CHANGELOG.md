@@ -6,6 +6,8 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-10
+
 ### Added
 
 - Stage-three planning documents for release metadata cleanup, detector adapter boundaries, mock detector coverage, and minimal opt-in LLM detector integration.
@@ -13,11 +15,12 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 - Deterministic and mock detector adapters with CLI selection via `--detector deterministic|mock`.
 - LLM prompt template, JSON output schema, and offline parser validation for converting structured model output to `DetectionResult`.
 - Optional `llm` detector selection backed by environment-only OpenAI-compatible configuration and offline fake-client tests.
+- Stage-three Markdown and JSON delivery reports under `docs/reports/`.
 
 ### Changed
 
 - Updated README, SPEC, development docs, and active task pointers to make stage three the final feature phase before `v1.0.0` delivery closeout.
-- Aligned package and CLI version metadata to the stage-three development version `0.3.0.dev0`.
+- Released package and CLI version metadata as `0.3.0`.
 
 ## [0.2.0] - 2026-07-10
 

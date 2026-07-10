@@ -2,7 +2,7 @@
 
 面向客服自动回复场景的幻觉检测评测项目。项目会读取 20 条客服回复、对应知识库和人工标注，自动判断回复是否存在幻觉，输出检测结果、检出率指标和误判分析。
 
-当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；第二阶段鲁棒性与可解释性增强已完成并打 `v0.2.0` 标签；第三阶段调整为 Adapter + 最小 LLM 接入闭环，并已支持 `deterministic`、`mock` 与显式 opt-in 的 `llm` detector 路径。默认命令可读取随包数据并生成 Markdown/JSON 报告；阶段一和阶段二交付报告均已提交在 `docs/reports/` 下，并随当前流水线格式保持一致。
+当前状态：第一阶段离线评测流水线已经完成并打 `v0.1.0` 标签；第二阶段鲁棒性与可解释性增强已完成并打 `v0.2.0` 标签；第三阶段 Adapter + 最小 LLM 接入闭环已完成，支持 `deterministic`、`mock` 与显式 opt-in 的 `llm` detector 路径。默认命令可读取随包数据并生成 Markdown/JSON 报告；阶段一、阶段二和阶段三交付报告均已提交在 `docs/reports/` 下，并随当前流水线格式保持一致。
 
 ## 为什么选择这个题
 
@@ -158,6 +158,11 @@ total=20, precision=1.000, recall=1.000, f1=1.000
 - [Markdown 检测报告](docs/reports/stage-2-report.md)
 - [JSON 结构化报告](docs/reports/stage-2-report.json)
 
+阶段三交付报告：
+
+- [Markdown 检测报告](docs/reports/stage-3-report.md)
+- [JSON 结构化报告](docs/reports/stage-3-report.json)
+
 阶段二规划：
 
 - [阶段二实施计划](tasks/stage-2-plan.md)
@@ -173,13 +178,13 @@ total=20, precision=1.000, recall=1.000, f1=1.000
 ```text
 v0.1.0  阶段一：离线评测 MVP，已完成
 v0.2.0  阶段二：鲁棒性与可解释性，已完成
-v0.3.0  阶段三：Adapter + 最小 LLM 接入，当前重点
-v1.0.0  阶段四：最终交付收尾
+v0.3.0  阶段三：Adapter + 最小 LLM 接入，已完成
+v1.0.0  阶段四：最终交付收尾，下一步
 ```
 
 ## 第三阶段方向
 
-第三阶段不再推进复杂评测平台化，而是优先完成最小 LLM 闭环：
+第三阶段不再推进复杂评测平台化，而是完成最小 LLM 闭环：
 
 - 版本元数据与发布记录对齐。
 - detector adapter contract。

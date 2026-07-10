@@ -6,7 +6,7 @@
 
 项目第一阶段已经完成，并已打 `v0.1.0` 标签：核心离线评测流水线可通过 CLI 运行，默认数据随包发布，阶段一 Markdown/JSON 交付报告已提交，并有测试验证交付报告与当前 pipeline 输出一致。第二阶段鲁棒性与可解释性增强也已完成，并已打 `v0.2.0` 标签：已交付鲁棒性样本、检测器边界测试、规则元数据模型、规则命中摘要、按类型聚合指标、报告解释增强和阶段二 Markdown/JSON 交付报告。
 
-当前处于第三阶段功能开发：阶段三调整为 Adapter + 最小 LLM 接入闭环，已完成版本/发布元数据一致性、detector adapter contract、deterministic adapter、mock adapter、LLM prompt、输出 schema、离线解析校验，以及显式 opt-in 的 `llm` adapter 与 CLI detector 选择。默认路径继续保持离线、确定性、无真实 LLM API 依赖。
+当前第三阶段功能开发已经收尾：阶段三完成 Adapter + 最小 LLM 接入闭环，已交付版本/发布元数据一致性、detector adapter contract、deterministic adapter、mock adapter、LLM prompt、输出 schema、离线解析校验、显式 opt-in 的 `llm` adapter 与 CLI detector 选择，以及阶段三 Markdown/JSON 交付报告。默认路径继续保持离线、确定性、无真实 LLM API 依赖。后续进入阶段四最终交付收尾。
 
 第一阶段完成标准已经满足：
 
@@ -129,17 +129,19 @@
 - deterministic/mock detector adapter 与 CLI 选择
 - LLM prompt、输出 schema 和离线解析校验
 - 可选 LLM adapter 与 CLI detector 选择
+- 阶段三 Markdown/JSON 交付报告
+- 阶段三文档、CHANGELOG 与质量门禁收尾
 
 待完成：
 
-- Task 23：完成第三阶段交付收尾。
+- 阶段四：最终交付收尾与 `v1.0.0` 发布准备。
 
 ## 后续建议
 
 - 阶段三计划：`tasks/stage-3-plan.md`
 - 阶段三任务清单：`tasks/stage-3-todo.md`
-- 下一步建议做 Task 23，完成第三阶段交付报告、文档和质量门禁收尾。
-- 阶段三已经接入显式 opt-in 的最小 LLM 路径，但默认 detector 和质量门禁仍保持离线可复现。
+- 阶段三已经完成，合并后可打 `v0.3.0` 标签。
+- 下一步建议规划阶段四，完成最终 README/报告复核、发布检查和 `v1.0.0` 交付准备。
 
 ## 开发时的默认命令
 
