@@ -116,17 +116,17 @@
 - 第二阶段鲁棒性 fixture 与 detector 边界测试
 - 规则元数据模型与报告规则命中摘要
 - 按幻觉类型聚合的指标
+- Markdown/JSON 报告解释增强
 
 待完成：
 
-- Markdown/JSON 报告解释增强
 - 第二阶段交付收尾与完整质量门禁
 
 ## 后续建议
 
 - 阶段二计划：`tasks/stage-2-plan.md`
 - 阶段二任务清单：`tasks/stage-2-todo.md`
-- 优先顺序：鲁棒性 fixture -> detector 边界测试 -> 规则元数据 -> per-type 指标 -> 报告解释增强。
+- 优先顺序：鲁棒性 fixture -> detector 边界测试 -> 规则元数据 -> per-type 指标 -> 报告解释增强 -> 阶段二交付收尾。
 - 阶段二仍不接真实 LLM API；如需 adapter，只能作为 mock 或接口边界单独评审。
 
 ## 开发时的默认命令

@@ -43,13 +43,13 @@
 ### Phase 3: Metrics And Reporting
 
 - [x] Task 14: 增加按幻觉类型聚合的评估指标。
-- [ ] Task 15: 增强 Markdown/JSON 报告，展示类型表现、规则命中统计和高风险排序依据。
+- [x] Task 15: 增强 Markdown/JSON 报告，展示类型表现、规则命中统计和高风险排序依据。
 
 ### Checkpoint: Reporting
 
-- [ ] 报告解释 precision/recall/F1 之外的类型表现。
-- [ ] JSON 报告字段稳定并有测试覆盖。
-- [ ] Markdown 报告仍适合人工审阅。
+- [x] 报告解释 precision/recall/F1 之外的类型表现。
+- [x] JSON 报告字段稳定并有测试覆盖。
+- [x] Markdown 报告仍适合人工审阅。
 
 ### Phase 4: Stage 2 Delivery
 

@@ -18,12 +18,20 @@ from customer_service_hallucination_audit.models import (
     MetricsSummary,
     RuleMetadata,
     RuleRiskLevel,
+    TypeMetricsSummary,
 )
 
 LIMITATIONS: tuple[str, ...] = (
-    "当前报告基于离线确定性规则，无法覆盖所有客服回复表达变体。",
+    "默认交付报告仅覆盖20条固定样本，样本规模不足以代表所有客服场景。",
+    "当前报告基于离线确定性规则，无法覆盖所有客服回复表达变体或规则外风险。",
     "人工真值只用于评估和错误分析，不参与检测器预测。",
     "高风险案例按漏检和安全误导相关错误保守筛选，后续可结合业务风险继续细化。",
+)
+
+HIGH_RISK_RATIONALE: tuple[str, ...] = (
+    "纳入所有漏检案例。",
+    "纳入人工标注或预测类型为安全误导的错误案例。",
+    "输出按样本 ID 稳定排序，便于复现和 diff 审阅。",
 )
 
 
@@ -37,6 +45,14 @@ class MetricsPayload(TypedDict):
     recall: float
     f1: float
     accuracy: float
+
+
+class TypeMetricsPayload(TypedDict):
+    hallucination_type: HallucinationType
+    label_count: int
+    predicted_count: int
+    true_positive_count: int
+    mismatch_count: int
 
 
 class ResultPayload(TypedDict):
@@ -73,11 +89,13 @@ class ErrorPayload(TypedDict):
 
 class ReportPayload(TypedDict):
     metrics: MetricsPayload
+    type_metrics: list[TypeMetricsPayload]
     results: list[ResultPayload]
     rule_hit_summary: list[RuleHitPayload]
     false_positives: list[ErrorPayload]
     false_negatives: list[ErrorPayload]
     type_mismatches: list[ErrorPayload]
+    high_risk_rationale: list[str]
     high_risk_cases: list[ErrorPayload]
     limitations: list[str]
 
@@ -85,6 +103,7 @@ class ReportPayload(TypedDict):
 @dataclass(frozen=True)
 class ReportSections:
     results: tuple[DetectionResult, ...]
+    type_metrics: tuple[TypeMetricsSummary, ...]
     rule_hit_summary: tuple[RuleHitSummary, ...]
     false_positives: tuple[ErrorCase, ...]
     false_negatives: tuple[ErrorCase, ...]
@@ -105,14 +124,18 @@ class RuleHitSummary:
 def build_report_payload(
     results: Iterable[DetectionResult],
     metrics: MetricsSummary,
+    type_metrics: Iterable[TypeMetricsSummary],
     error_cases: Iterable[ErrorCase],
 ) -> ReportPayload:
     """Build the machine-readable report structure with stable ordering."""
 
-    sections = _prepare_report_sections(results, error_cases)
+    sections = _prepare_report_sections(results, type_metrics, error_cases)
 
     return {
         "metrics": _metrics_to_payload(metrics),
+        "type_metrics": [
+            _type_metrics_to_payload(type_metric) for type_metric in sections.type_metrics
+        ],
         "results": [_result_to_payload(result) for result in sections.results],
         "rule_hit_summary": [
             _rule_hit_summary_to_payload(summary) for summary in sections.rule_hit_summary
@@ -126,6 +149,7 @@ def build_report_payload(
         "type_mismatches": [
             _error_to_payload(error_case) for error_case in sections.type_mismatches
         ],
+        "high_risk_rationale": list(HIGH_RISK_RATIONALE),
         "high_risk_cases": [
             _error_to_payload(error_case) for error_case in sections.high_risk_cases
         ],
@@ -136,13 +160,14 @@ def build_report_payload(
 def render_json_report(
     results: Iterable[DetectionResult],
     metrics: MetricsSummary,
+    type_metrics: Iterable[TypeMetricsSummary],
     error_cases: Iterable[ErrorCase],
 ) -> str:
     """Render a deterministic UTF-8 JSON report string."""
 
     return (
         json.dumps(
-            build_report_payload(results, metrics, error_cases),
+            build_report_payload(results, metrics, type_metrics, error_cases),
             ensure_ascii=False,
             indent=2,
         )
@@ -153,11 +178,12 @@ def render_json_report(
 def render_markdown_report(
     results: Iterable[DetectionResult],
     metrics: MetricsSummary,
+    type_metrics: Iterable[TypeMetricsSummary],
     error_cases: Iterable[ErrorCase],
 ) -> str:
     """Render a human-readable Markdown report with stable sections."""
 
-    sections = _prepare_report_sections(results, error_cases)
+    sections = _prepare_report_sections(results, type_metrics, error_cases)
 
     lines: list[str] = [
         "# 客服回复幻觉检测报告",
@@ -175,6 +201,10 @@ def render_markdown_report(
         f"| Recall | {_format_rate(metrics.recall)} |",
         f"| F1 | {_format_rate(metrics.f1)} |",
         f"| Accuracy | {_format_rate(metrics.accuracy)} |",
+        "",
+        "## 类型表现",
+        "",
+        *_render_type_metrics(sections.type_metrics),
         "",
         "## 分类结果",
         "",
@@ -204,6 +234,10 @@ def render_markdown_report(
             "",
             "## 高风险案例",
             "",
+            "筛选与排序依据：",
+            "",
+            *(f"- {rationale}" for rationale in HIGH_RISK_RATIONALE),
+            "",
             *_render_error_lines(sections.high_risk_cases, _format_high_risk_case),
             "",
             "## 局限性",
@@ -216,12 +250,15 @@ def render_markdown_report(
 
 def _prepare_report_sections(
     results: Iterable[DetectionResult],
+    type_metrics: Iterable[TypeMetricsSummary],
     error_cases: Iterable[ErrorCase],
 ) -> ReportSections:
     sorted_results = tuple(sorted(results, key=lambda result: result.case_id))
+    type_metrics_tuple = tuple(type_metrics)
     sorted_errors = tuple(sorted(error_cases, key=lambda error_case: error_case.case_id))
     return ReportSections(
         results=sorted_results,
+        type_metrics=type_metrics_tuple,
         rule_hit_summary=_summarize_rule_hits(sorted_results),
         false_positives=select_error_cases(sorted_errors, "false_positive"),
         false_negatives=select_error_cases(sorted_errors, "false_negative"),
@@ -241,6 +278,16 @@ def _metrics_to_payload(metrics: MetricsSummary) -> MetricsPayload:
         "recall": metrics.recall,
         "f1": metrics.f1,
         "accuracy": metrics.accuracy,
+    }
+
+
+def _type_metrics_to_payload(type_metrics: TypeMetricsSummary) -> TypeMetricsPayload:
+    return {
+        "hallucination_type": type_metrics.hallucination_type,
+        "label_count": type_metrics.label_count,
+        "predicted_count": type_metrics.predicted_count,
+        "true_positive_count": type_metrics.true_positive_count,
+        "mismatch_count": type_metrics.mismatch_count,
     }
 
 
@@ -354,6 +401,29 @@ def _render_rule_hit_summary(summaries: Iterable[RuleHitSummary]) -> list[str]:
     ]
     lines.extend(_render_rule_hit_summary_row(summary) for summary in summaries_tuple)
     return lines
+
+
+def _render_type_metrics(type_metrics: Iterable[TypeMetricsSummary]) -> list[str]:
+    type_metrics_tuple = tuple(type_metrics)
+    if not type_metrics_tuple:
+        return ["- 无"]
+
+    lines = [
+        "| 幻觉类型 | 标注数 | 预测数 | 命中数 | 错配数 |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    lines.extend(_render_type_metrics_row(type_metric) for type_metric in type_metrics_tuple)
+    return lines
+
+
+def _render_type_metrics_row(type_metrics: TypeMetricsSummary) -> str:
+    return (
+        f"| {_format_cell(type_metrics.hallucination_type)} "
+        f"| {type_metrics.label_count} "
+        f"| {type_metrics.predicted_count} "
+        f"| {type_metrics.true_positive_count} "
+        f"| {type_metrics.mismatch_count} |"
+    )
 
 
 def _render_rule_hit_summary_row(summary: RuleHitSummary) -> str:

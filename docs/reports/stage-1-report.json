@@ -10,6 +10,64 @@
     "f1": 1.0,
     "accuracy": 1.0
   },
+  "type_metrics": [
+    {
+      "hallucination_type": "政策编造",
+      "label_count": 1,
+      "predicted_count": 1,
+      "true_positive_count": 1,
+      "mismatch_count": 0
+    },
+    {
+      "hallucination_type": "政策偏差",
+      "label_count": 2,
+      "predicted_count": 2,
+      "true_positive_count": 2,
+      "mismatch_count": 0
+    },
+    {
+      "hallucination_type": "参数编造",
+      "label_count": 4,
+      "predicted_count": 4,
+      "true_positive_count": 4,
+      "mismatch_count": 0
+    },
+    {
+      "hallucination_type": "优惠编造",
+      "label_count": 2,
+      "predicted_count": 2,
+      "true_positive_count": 2,
+      "mismatch_count": 0
+    },
+    {
+      "hallucination_type": "信息编造",
+      "label_count": 3,
+      "predicted_count": 3,
+      "true_positive_count": 3,
+      "mismatch_count": 0
+    },
+    {
+      "hallucination_type": "能力越界",
+      "label_count": 4,
+      "predicted_count": 4,
+      "true_positive_count": 4,
+      "mismatch_count": 0
+    },
+    {
+      "hallucination_type": "安全误导",
+      "label_count": 1,
+      "predicted_count": 1,
+      "true_positive_count": 1,
+      "mismatch_count": 0
+    },
+    {
+      "hallucination_type": "信息遗漏",
+      "label_count": 1,
+      "predicted_count": 1,
+      "true_positive_count": 1,
+      "mismatch_count": 0
+    }
+  ],
   "results": [
     {
       "case_id": "h01",
@@ -431,9 +489,15 @@
   "false_positives": [],
   "false_negatives": [],
   "type_mismatches": [],
+  "high_risk_rationale": [
+    "纳入所有漏检案例。",
+    "纳入人工标注或预测类型为安全误导的错误案例。",
+    "输出按样本 ID 稳定排序，便于复现和 diff 审阅。"
+  ],
   "high_risk_cases": [],
   "limitations": [
-    "当前报告基于离线确定性规则，无法覆盖所有客服回复表达变体。",
+    "默认交付报告仅覆盖20条固定样本，样本规模不足以代表所有客服场景。",
+    "当前报告基于离线确定性规则，无法覆盖所有客服回复表达变体或规则外风险。",
     "人工真值只用于评估和错误分析，不参与检测器预测。",
     "高风险案例按漏检和安全误导相关错误保守筛选，后续可结合业务风险继续细化。"
   ]
