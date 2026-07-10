@@ -1,77 +1,102 @@
-# Implementation Plan: 第三阶段评测扩展与适配边界
+# Implementation Plan: 第三阶段最小 LLM 接入闭环
 
 ## Overview
 
-第三阶段从 `v0.2.0` 第二阶段交付点继续推进，目标是把当前单一默认数据集、单一确定性检测器、单次报告输出，扩展成更容易演进的离线评测框架。阶段三优先建立 detector 适配边界、评测套件输入模型、跨套件报告和回归比较能力，为后续 mock/LLM adapter 或更多业务数据接入预留结构，但默认路径仍保持离线、确定性、无外部 API 依赖。
+第三阶段从 `v0.2.0` 第二阶段交付点继续推进，但不再走“多套件评测平台化”的长期路线。考虑剩余时间，第三阶段调整为最后一个功能开发阶段：在保持默认离线可复现的前提下，加入 detector adapter 边界、mock detector 和可选 LLM detector，让同一套 pipeline 可以运行 `deterministic`、`mock`、`llm` 三种检测器，并继续生成当前稳定的 Markdown/JSON 报告。
+
+阶段三目标版本为 `v0.3.0`。阶段三完成后，项目只保留一个最终交付收尾阶段，对应 `v1.0.0`。
+
+## Project Phase Map
+
+```text
+v0.1.0  阶段一：离线评测 MVP，已完成
+v0.2.0  阶段二：鲁棒性与可解释性，已完成
+v0.3.0  阶段三：Adapter + 最小 LLM 接入，当前重点
+v1.0.0  阶段四：最终交付收尾
+```
 
 ## Assumptions
 
-- `main` 已完成第二阶段合并，并已打 `v0.2.0` 标签。
-- 第三阶段不接入真实 LLM API；如要引入真实模型调用，需要单独确认、单独设计、单独评审。
-- 第三阶段不改变 `data/replies.json` 和 `data/ground_truth.json` 的既有字段格式；新增评测输入优先通过显式路径、fixture 或 suite 配置表达。
-- 新增能力优先使用标准库和现有模块，不新增运行时依赖。
-- 阶段三交付仍以小 PR 推进，每个任务控制在约 1-5 个主要文件内。
+- 默认执行路径继续是确定性规则检测器，不需要网络、API key 或真实 LLM。
+- LLM detector 必须显式选择，例如 `--detector llm`，并通过环境变量读取密钥和配置。
+- LLM adapter 的测试使用 mock/fake client，不依赖真实网络调用。
+- 不新增运行时依赖；如必须新增依赖，需要先单独确认收益。
+- 不改变 `data/replies.json` 和 `data/ground_truth.json` 的既有字段格式。
+- 阶段三不做多 provider 平台化、不做复杂 suite 配置、不做报告回归比较工具。
 
 ## Architecture Decisions
 
-- 先补齐版本与发布元数据一致性，再继续功能开发，避免 `v0.2.0` 标签后 CLI/package 版本信息长期滞后。
-- detector 适配边界只定义离线可复现接口和 mock/test double，不把真实 LLM adapter 放入默认执行路径。
-- 评测套件以“回复文件 + 人工真值文件 + 元数据”的显式组合建模，避免污染默认 20 条交付数据。
-- pipeline 继续负责 orchestration；数据读取、检测器调用、指标计算、报告渲染仍保持模块边界分离。
-- 报告新增字段必须保持稳定排序，并通过 golden-style 测试验证序列化结果。
+- detector 以统一 contract 接入 pipeline：输入为 `ReplyCase` 序列，输出为 `DetectionResult` 序列。
+- 现有规则检测器作为 `deterministic` adapter，是默认和 CI 必跑路径。
+- `mock` adapter 用于验证 adapter 注入、CLI 选择和报告链路，不依赖网络。
+- `llm` adapter 是显式 opt-in 路径，负责 prompt 构造、调用 provider、解析结构化输出并校验为 `DetectionResult`。
+- LLM 输出必须符合最小 JSON schema：`case_id`、`is_hallucination`、`hallucination_type`、`reasons`、`rule_ids`。
+- LLM 解析失败、缺少 API key、返回未知类型时必须给出清晰错误，不静默降级为确定性结果。
+- 报告 schema 尽量保持现状；如需记录 detector 名称，优先使用小范围字段扩展并更新 golden-style 测试。
 
 ## Task List
 
-### Phase 0: Stage 3 Planning
+### Phase 0: Stage 3 Replanning
 
-- [x] Task 17: 建立第三阶段计划、任务清单和文档状态。
+- [x] Task 17: 重新校准第三阶段为最小 LLM 接入闭环。
 
-### Phase 1: Release And Adapter Foundation
+### Phase 1: Version And Adapter Contract
 
 - [ ] Task 18: 对齐版本元数据与发布记录。
-- [ ] Task 19: 定义 detector adapter contract，并保留确定性默认实现。
+- [ ] Task 19: 定义 detector adapter contract。
 
-### Checkpoint: Foundation
+### Checkpoint: Adapter Foundation
 
-- [ ] `python -m customer_service_hallucination_audit --version` 与阶段版本策略一致。
+- [ ] `python -m customer_service_hallucination_audit --version` 与版本策略一致。
 - [ ] 默认 CLI 输出和阶段二交付报告不发生非预期漂移。
-- [ ] mock detector 可用于测试 pipeline 注入边界，但默认路径仍使用确定性规则。
+- [ ] pipeline 可以通过 contract 接收不同 detector。
 
-### Phase 2: Evaluation Suite Inputs
+### Phase 2: Offline Adapter Paths
 
-- [ ] Task 20: 增加评测套件模型和 loader。
-- [ ] Task 21: 支持跨套件运行与报告元数据。
+- [ ] Task 20: 接入 deterministic adapter 和 mock adapter。
+- [ ] Task 21: 增加 LLM 输出 schema、prompt 模板和解析校验。
 
-### Checkpoint: Multi-suite Evaluation
+### Checkpoint: Offline Confidence
 
-- [ ] 默认 20 条数据仍可用原命令运行。
-- [ ] 显式 suite 配置可运行多个数据集并输出稳定汇总。
-- [ ] 报告中能区分 dataset/suite、detector 和运行元数据。
+- [ ] `deterministic` 是默认 detector，完整质量门禁可离线通过。
+- [ ] `mock` detector 可端到端生成报告，并被测试覆盖。
+- [ ] LLM 输出解析和错误路径均可离线测试。
 
-### Phase 3: Regression And Delivery
+### Phase 3: Optional LLM Path And Delivery
 
-- [ ] Task 22: 增加报告回归比较能力。
-- [ ] Task 23: 完成第三阶段交付收尾。
+- [ ] Task 22: 增加可选 LLM adapter 与 CLI detector 选择。
+- [ ] Task 23: 完成第三阶段交付报告、文档和质量门禁。
 
-### Checkpoint: Complete
+### Checkpoint: Stage 3 Complete
 
+- [ ] 默认命令仍离线可复现。
+- [ ] `--detector deterministic`、`--detector mock`、`--detector llm` 路径清晰。
+- [ ] LLM 路径缺少配置时失败信息可理解，且不会影响默认 CI。
+- [ ] README、SPEC、CHANGELOG、开发文档和阶段三交付报告已同步。
 - [ ] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1` 通过。
 - [ ] `pre-commit run --all-files` 通过。
-- [ ] README、SPEC、CHANGELOG、开发文档和阶段三交付报告已同步。
-- [ ] 没有提交缓存、虚拟环境、CodeGraph 数据库、真实密钥或生成污染物。
+
+## Out Of Scope For Stage 3
+
+- 多套件 orchestration。
+- 复杂 suite 配置和批量运行。
+- 报告回归比较 CLI。
+- 多 provider 抽象层。
+- Prompt 调优平台、缓存、重试、并发和成本统计。
+- 将真实 LLM 路径纳入默认 CI。
 
 ## Risks and Mitigations
 
 | Risk | Impact | Mitigation |
 | --- | --- | --- |
-| adapter 边界过早绑定真实 LLM | 破坏离线可复现与测试稳定性 | 阶段三只做 contract 和 mock/test double；真实 API 单独确认 |
-| suite 输入模型变成新数据格式迁移 | 增加兼容成本 | 保留原 replies/ground truth schema，只在外层增加 suite 元数据 |
-| 报告 JSON 字段漂移 | 下游测试和交付报告失去稳定性 | 新字段稳定排序，更新 golden-style 断言和交付报告一致性测试 |
-| 多套件汇总让 pipeline 变复杂 | 模块边界变模糊 | 保持单次 run_audit 不变，新增 suite orchestration 包装层 |
-| 版本信息继续滞后标签 | 用户无法确认运行版本 | 阶段三第一批任务先处理版本策略和 CLI --version 行为 |
+| LLM 接入破坏默认可复现性 | CI 不稳定，默认用户无法离线运行 | 默认 detector 保持 deterministic，LLM 必须显式选择 |
+| LLM 返回非结构化文本 | 无法稳定计算指标和生成报告 | 增加 JSON schema 解析校验，失败时抛出明确错误 |
+| API key 泄漏 | 安全风险 | 只读环境变量，不写入报告和日志，不提交 `.env` |
+| 为了 LLM 过度抽象 | 开发变慢，交付价值滞后 | 只做 deterministic/mock/llm 三条最小路径 |
+| provider API 细节变化 | 实现失败或难维护 | 实现前查官方文档；adapter 边界隔离 provider 细节 |
 
 ## Open Questions
 
-- 阶段三是否要提交 `docs/reports/stage-3-report.*`，还是改为提交跨套件 summary 报告？
-- 版本号应继续手动维护在 `pyproject.toml` / `__init__.py`，还是改为从 git tag 派生？
-- 第三阶段是否需要正式引入一个 `docs/decisions/ADR-002-detector-adapter.md` 来记录 adapter 边界？
+- LLM adapter 首选 provider 是否固定为 OpenAI，还是先做 OpenAI-compatible HTTP 配置？
+- 阶段三交付报告是否只提交 deterministic 报告，还是同时提交 mock/LLM 示例报告？
+- LLM 返回 `rule_ids` 是使用 `llm.*` 虚拟规则 ID，还是允许为空并只在 `reasons` 中说明？

@@ -8,11 +8,11 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 
 ### Added
 
-- Stage-three planning documents for release metadata cleanup, detector adapter boundaries, evaluation suites, multi-suite reporting, and report regression comparison.
+- Stage-three planning documents for release metadata cleanup, detector adapter boundaries, mock detector coverage, and minimal opt-in LLM detector integration.
 
 ### Changed
 
-- Updated README, SPEC, development docs, and active task pointers to start stage-three planning from the `v0.2.0` release point.
+- Updated README, SPEC, development docs, and active task pointers to make stage three the final feature phase before `v1.0.0` delivery closeout.
 
 ## [0.2.0] - 2026-07-10
 

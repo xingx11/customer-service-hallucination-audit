@@ -6,7 +6,7 @@
 
 项目第一阶段已经完成，并已打 `v0.1.0` 标签：核心离线评测流水线可通过 CLI 运行，默认数据随包发布，阶段一 Markdown/JSON 交付报告已提交，并有测试验证交付报告与当前 pipeline 输出一致。第二阶段鲁棒性与可解释性增强也已完成，并已打 `v0.2.0` 标签：已交付鲁棒性样本、检测器边界测试、规则元数据模型、规则命中摘要、按类型聚合指标、报告解释增强和阶段二 Markdown/JSON 交付报告。
 
-当前进入第三阶段规划：阶段三聚焦评测扩展与适配边界，先处理版本/发布元数据一致性，再建立 detector adapter contract、评测套件输入模型、跨套件报告和报告回归比较能力。默认路径继续保持离线、确定性、无真实 LLM API 依赖。
+当前进入第三阶段规划：阶段三调整为 Adapter + 最小 LLM 接入闭环，先处理版本/发布元数据一致性，再建立 detector adapter contract、deterministic adapter、mock adapter、LLM 输出 schema 和显式 opt-in 的 LLM adapter。默认路径继续保持离线、确定性、无真实 LLM API 依赖。
 
 第一阶段完成标准已经满足：
 
@@ -20,7 +20,7 @@
 ## 已确认上下文
 
 - 产品形态：Python 3.11+ CLI，不使用 Web 框架、数据库或后台服务。
-- 核心约束：默认离线可复现，不接入真实 LLM API，不新增运行时依赖。
+- 核心约束：默认离线可复现；真实 LLM 只能显式选择，不进入默认质量门禁；不新增运行时依赖。
 - 数据闭环：`data/replies.json` 和 `data/ground_truth.json` 均为 20 条，ID 为 `h01` 到 `h20`。
 - 标注分布：18 条幻觉、2 条非幻觉，覆盖政策编造、政策偏差、参数编造、优惠编造、信息编造、能力越界、安全误导、信息遗漏。
 - 当前源码：核心模型、JSON 读取、确定性规则检测、指标计算、报告生成和 CLI 端到端流水线已经拆分到独立模块；默认数据也随包发布，安装后无需源码根目录即可运行。
@@ -126,9 +126,9 @@
 
 - Task 18：对齐版本元数据与发布记录。
 - Task 19：定义 detector adapter contract。
-- Task 20：增加评测套件模型和 loader。
-- Task 21：支持跨套件运行与报告元数据。
-- Task 22：增加报告回归比较能力。
+- Task 20：接入 deterministic adapter 和 mock adapter。
+- Task 21：增加 LLM 输出 schema、prompt 模板和解析校验。
+- Task 22：增加可选 LLM adapter 与 CLI detector 选择。
 - Task 23：完成第三阶段交付收尾。
 
 ## 后续建议
@@ -136,7 +136,7 @@
 - 阶段三计划：`tasks/stage-3-plan.md`
 - 阶段三任务清单：`tasks/stage-3-todo.md`
 - 下一步建议先做 Task 18，修复发布标签和运行时版本元数据可能不一致的问题。
-- 阶段三仍不接真实 LLM API；如需 adapter，只能先做 mock 或接口边界单独评审。
+- 阶段三会接入显式 opt-in 的最小 LLM 路径，但默认 detector 和质量门禁仍保持离线可复现。
 
 ## 开发时的默认命令
 

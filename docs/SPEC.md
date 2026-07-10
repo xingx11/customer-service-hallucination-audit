@@ -21,7 +21,16 @@
 
 ## Stage 3 Plan
 
-第三阶段聚焦评测扩展与适配边界：先对齐 `v0.2.0` 标签后的版本元数据与发布记录，再定义 detector adapter contract，增加评测套件输入模型、跨套件报告元数据和报告回归比较能力。阶段三仍保持默认离线可复现，不接入真实 LLM API，不新增运行时依赖，不改变默认 `data/replies.json` 和 `data/ground_truth.json` 字段格式。
+第三阶段聚焦 Adapter + 最小 LLM 接入：先对齐 `v0.2.0` 标签后的版本元数据与发布记录，再定义 detector adapter contract，把现有规则检测器包装为默认 `deterministic` adapter，增加离线 `mock` adapter，并提供显式 opt-in 的 `llm` adapter。阶段三仍保持默认离线可复现，不新增运行时依赖，不改变默认 `data/replies.json` 和 `data/ground_truth.json` 字段格式。
+
+项目后续阶段收敛为：
+
+```text
+v0.1.0  阶段一：离线评测 MVP，已完成
+v0.2.0  阶段二：鲁棒性与可解释性，已完成
+v0.3.0  阶段三：Adapter + 最小 LLM 接入，当前重点
+v1.0.0  阶段四：最终交付收尾
+```
 
 阶段三规划文档：
 
@@ -124,12 +133,13 @@ def calculate_f1(precision: float, recall: float) -> float:
 
 ## Stage 3 Success Criteria
 
-- CLI/package 版本信息与发布策略一致，`CHANGELOG` 中 `0.2.0` 发布段落和新的 `Unreleased` 段落清晰分离。
-- pipeline 可以通过 detector contract 注入 mock detector，默认 CLI 仍使用确定性规则检测器。
-- 评测套件模型可以用显式元数据组合多个 replies/ground truth 文件，且不改变既有数据 schema。
-- 报告能稳定展示 suite/detector 元数据、跨套件摘要或可比较的报告结构。
-- 提供离线报告回归比较能力，用于识别指标、类型表现、规则命中和错误案例漂移。
-- README、SPEC、CHANGELOG、开发文档和阶段三交付报告已同步，完整质量门禁通过。
+- CLI/package 版本信息与发布策略一致，`CHANGELOG` 中 `0.2.0` 发布段落和新的阶段三 `Unreleased` 段落清晰分离。
+- pipeline 可以通过 detector contract 注入不同 detector，默认 CLI 仍使用确定性规则检测器。
+- CLI 支持 `--detector deterministic|mock|llm`，默认值为 `deterministic`。
+- mock detector 可离线端到端生成报告，并用于测试 adapter 注入链路。
+- LLM detector 显式 opt-in，配置只从环境变量读取，缺少配置或输出非法时给出清晰错误。
+- LLM 输出经过 schema 解析和幻觉类型校验后转换为现有 `DetectionResult`。
+- README、SPEC、CHANGELOG、开发文档和阶段三交付报告已同步，完整质量门禁通过且不依赖真实 LLM。
 
 ## Resolved Decisions And Follow-ups
 
@@ -138,5 +148,6 @@ def calculate_f1(precision: float, recall: float) -> float:
 - 最差案例解释：阶段一报告已包含漏检、误报、高风险案例和局限性说明；更详细的中文解释模板作为后续增强项。
 - 阶段二边界：优先增强鲁棒性样本、规则解释和报告指标；真实 LLM 接入仍不进入默认执行路径。
 - 规则命中摘要：报告层按规则 ID 聚合命中次数、样本 ID、风险等级、触发意图和中文说明；JSON 保持稳定字段顺序，Markdown 面向人工审阅展示规则解释。
-- 阶段三边界：优先做 adapter contract、suite orchestration 和报告比较；真实 LLM adapter 不进入默认路径，若需要接入必须另行确认。
+- 阶段三边界：优先完成 adapter contract、mock adapter 和显式 opt-in 的最小 LLM adapter；多套件 orchestration、复杂 suite 配置和报告回归比较移出阶段三。
 - 版本元数据跟进：`v0.2.0` 已打标签，阶段三第一批任务需要确认 package/CLI 版本来源，避免发布标签和运行时版本长期不一致。
+- LLM 接入边界：真实 LLM 只作为显式选择路径，不进入默认 CI；密钥只从环境变量读取，不写入报告或日志。
