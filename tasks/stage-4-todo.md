@@ -40,17 +40,18 @@
 
 **Acceptance criteria:**
 
-- [ ] README 的快速开始、质量命令、开发路线、交付报告链接和局限性保持一致。
-- [ ] SPEC 的阶段状态、成功标准、边界和已解决决策与当前源码行为一致。
-- [ ] DEVELOPMENT 文档能指导后续 agent 从阶段四继续开发。
-- [ ] CHANGELOG 的 `Unreleased` 内容准确描述阶段四收尾变更。
-- [ ] 文档明确项目不自动读取 `.env`，`llm` detector 只读取进程环境变量。
+- [x] README 的快速开始、质量命令、开发路线、交付报告链接和局限性保持一致。
+- [x] SPEC 的阶段状态、成功标准、边界和已解决决策与当前源码行为一致。
+- [x] DEVELOPMENT 文档能指导后续 agent 从阶段四继续开发。
+- [x] CHANGELOG 的 `Unreleased` 内容准确描述阶段四收尾变更。
+- [x] 文档明确项目不自动读取 `.env`，`llm` detector 只读取进程环境变量。
+- [x] 交付复核结果记录在 `docs/DELIVERY_REVIEW.md`。
 
 **Verification:**
 
-- [ ] Manual review: 打开 README、SPEC、DEVELOPMENT、CHANGELOG，逐项核对阶段状态。
-- [ ] Link review: 阶段一到阶段三报告链接和阶段四计划链接可访问。
-- [ ] `python -m pytest tests/test_delivery_reports.py`
+- [x] Manual review: 打开 README、SPEC、DEVELOPMENT、CHANGELOG，逐项核对阶段状态。
+- [x] Link review: 阶段一到阶段三报告链接和阶段四计划链接可访问。
+- [x] `python -m pytest tests/test_delivery_reports.py`
 
 **Dependencies:** Task 24
 

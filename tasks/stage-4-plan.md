@@ -47,14 +47,15 @@ v1.0.0  阶段四：最终交付收尾，进行中
 
 ### Phase 1: Documentation And Delivery Review
 
-- [ ] Task 25: 最终文档与交付复核。
+- [x] Task 25: 最终文档与交付复核。
 
 ### Checkpoint: Documentation Ready
 
-- [ ] README、SPEC、DEVELOPMENT、CHANGELOG 中的阶段状态一致。
-- [ ] 阶段一到阶段三交付报告链接可用，阶段四最终报告待生成项清晰。
-- [ ] README 明确默认离线路径、显式 `llm` 配置和不读取 `.env` 的边界。
-- [ ] 项目局限性、AI 工具使用说明和质量命令可直接用于交付审阅。
+- [x] README、SPEC、DEVELOPMENT、CHANGELOG 中的阶段状态一致。
+- [x] 阶段一到阶段三交付报告链接可用，阶段四最终报告待生成项清晰。
+- [x] README 明确默认离线路径、显式 `llm` 配置和不读取 `.env` 的边界。
+- [x] 项目局限性、AI 工具使用说明和质量命令可直接用于交付审阅。
+- [x] `docs/DELIVERY_REVIEW.md` 记录最终文档与交付复核结果。
 
 ### Phase 2: Quality And Install Smoke
 
@@ -104,3 +105,9 @@ v1.0.0  阶段四：最终交付收尾，进行中
 - 当前不新增 `.env.example`，因为项目未实现 `.env` 自动读取；增加该文件反而容易让用户误以为配置会自动生效。
 - 阶段四先做发布准备计划和检查清单，不在本任务修改源码行为。
 - `v1.0.0` 版本提升留到 Task 27，完成最终文档复核、质量门禁和交付报告后再执行。
+
+## Resolved Task 25 Decisions
+
+- 最终文档复核结果记录在 `docs/DELIVERY_REVIEW.md`，作为 Task 26 和 Task 27 的交付前上下文。
+- 阶段四最终 Markdown/JSON 报告留到 Task 27 生成；Task 25 只验证阶段一到阶段三已提交报告和阶段四文档链接。
+- 当前仍不新增 `.env.example`，因为 README、SPEC 和发布检查清单已经明确项目不自动读取 `.env`。

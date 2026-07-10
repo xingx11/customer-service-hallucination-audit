@@ -10,10 +10,12 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 
 - Stage-four release-readiness planning documents for final `v1.0.0` delivery closeout.
 - Release checklist covering documentation review, local quality gates, CLI smoke tests, packaged data checks, PR review, and tagging steps.
+- Delivery review record for the final documentation and committed report link audit.
 
 ### Changed
 
 - Updated README, SPEC, development docs, and active task pointers to make stage four the current release-readiness phase.
+- Marked stage-four documentation review complete and moved the active next step to final quality and CLI smoke verification.
 
 ## [0.3.0] - 2026-07-10
 
