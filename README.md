@@ -174,7 +174,7 @@ v1.0.0  阶段四：最终交付收尾
 - detector adapter contract。
 - `deterministic` adapter，默认仍使用现有确定性规则检测器。（已完成）
 - `mock` adapter，用于离线测试 adapter 注入和报告链路。（已完成）
-- LLM prompt、输出 schema 和解析校验。
+- LLM prompt、输出 schema 和解析校验。（已完成）
 - 可选 `llm` adapter 与 CLI detector 选择参数。
 
 真实 LLM API 不进入默认路径，必须显式选择并通过环境变量配置；默认质量门禁仍然离线运行。

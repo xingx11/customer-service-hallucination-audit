@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
+import json
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from typing import cast
 
 from customer_service_hallucination_audit.models import (
+    HALLUCINATION_TYPES,
     DetectionResult,
     Detector,
+    HallucinationType,
     ReplyCase,
     RuleMetadata,
 )
@@ -16,10 +20,34 @@ NO_RULE_REASON = "未触发确定性幻觉规则。"
 MOCK_HALLUCINATION_REASON = "模拟检测器生成的合成幻觉结果，用于离线验证 adapter 链路。"
 MOCK_NON_HALLUCINATION_REASON = "模拟检测器生成的合成非幻觉结果，用于离线验证 adapter 链路。"
 MOCK_RULE_ID = "mock.synthetic_signal"
+LLM_OUTPUT_SCHEMA: dict[str, object] = {
+    "type": "object",
+    "required": [
+        "case_id",
+        "is_hallucination",
+        "hallucination_type",
+        "reasons",
+        "rule_ids",
+    ],
+    "properties": {
+        "case_id": {"type": "string"},
+        "is_hallucination": {"type": "boolean"},
+        "hallucination_type": {
+            "type": ["string", "null"],
+            "enum": (*HALLUCINATION_TYPES, None),
+        },
+        "reasons": {"type": "array", "items": {"type": "string"}},
+        "rule_ids": {"type": "array", "items": {"type": "string"}},
+    },
+}
 
 
 class UnknownDetectorError(ValueError):
     """Raised when a detector adapter name is not registered."""
+
+
+class LlmOutputValidationError(ValueError):
+    """Raised when structured LLM output cannot be converted to a detection result."""
 
 
 @dataclass(frozen=True)
@@ -336,6 +364,52 @@ def mock_detector(reply_cases: Sequence[ReplyCase]) -> tuple[DetectionResult, ..
     return tuple(results)
 
 
+def build_llm_prompt(reply_case: ReplyCase) -> str:
+    """Build the minimal prompt for a structured LLM detector call."""
+
+    schema = json.dumps(LLM_OUTPUT_SCHEMA, ensure_ascii=False, indent=2)
+    hallucination_types = "、".join(HALLUCINATION_TYPES)
+    return (
+        "你是客服回复幻觉检测器。\n"
+        "请只依据用户问题、系统回复和知识库判断，不要使用人工真值、人工标注或外部知识。\n"
+        "如果回复与知识库矛盾、无依据承诺、能力越界、安全误导或遗漏关键限制，"
+        "将 is_hallucination 设为 true，并选择一个允许的 hallucination_type。\n"
+        "如果回复与知识库一致，将 is_hallucination 设为 false，hallucination_type 必须为 null。\n"
+        "只返回一个 JSON object，不要返回 Markdown 或解释性前后缀。\n\n"
+        f"允许的幻觉类型：{hallucination_types}\n\n"
+        f"输出 schema：\n{schema}\n\n"
+        "输入：\n"
+        f"case_id: {reply_case.case_id}\n"
+        f"user_question: {reply_case.user_question}\n"
+        f"system_reply: {reply_case.system_reply}\n"
+        f"knowledge_base: {reply_case.knowledge_base}\n"
+    )
+
+
+def parse_llm_detection_result(reply_case: ReplyCase, raw_output: str) -> DetectionResult:
+    """Validate structured LLM output and convert it into a detection result."""
+
+    payload = _parse_llm_json_object(raw_output)
+    case_id = _require_string(payload, "case_id")
+    if case_id != reply_case.case_id:
+        raise LlmOutputValidationError(
+            f"LLM output case_id '{case_id}' does not match reply case_id '{reply_case.case_id}'"
+        )
+
+    is_hallucination = _require_bool(payload, "is_hallucination")
+    hallucination_type = _require_hallucination_type(payload, is_hallucination)
+    reasons = _require_string_sequence(payload, "reasons", allow_empty=False)
+    rule_ids = _require_string_sequence(payload, "rule_ids", allow_empty=True)
+
+    return DetectionResult(
+        case_id=case_id,
+        is_hallucination=is_hallucination,
+        hallucination_type=hallucination_type,
+        reasons=reasons,
+        rule_ids=rule_ids,
+    )
+
+
 DETECTOR_ADAPTERS: dict[str, Detector] = {
     "deterministic": deterministic_detector,
     "mock": mock_detector,
@@ -352,6 +426,93 @@ def select_detector(name: str) -> Detector:
         raise UnknownDetectorError(
             f"Unknown detector adapter '{name}'. Expected one of: {expected}"
         ) from exc
+
+
+def _parse_llm_json_object(raw_output: str) -> Mapping[str, object]:
+    try:
+        parsed: object = json.loads(raw_output)
+    except json.JSONDecodeError as exc:
+        raise LlmOutputValidationError(f"LLM output must be valid JSON: {exc.msg}") from exc
+
+    if not isinstance(parsed, dict):
+        raise LlmOutputValidationError("LLM output must be a JSON object")
+    return cast(Mapping[str, object], parsed)
+
+
+def _require_field(payload: Mapping[str, object], field_name: str) -> object:
+    try:
+        return payload[field_name]
+    except KeyError as exc:
+        raise LlmOutputValidationError(f"LLM output missing required field '{field_name}'") from exc
+
+
+def _require_string(payload: Mapping[str, object], field_name: str) -> str:
+    value = _require_field(payload, field_name)
+    if not isinstance(value, str) or not value:
+        raise LlmOutputValidationError(
+            f"LLM output field '{field_name}' must be a non-empty string"
+        )
+    return value
+
+
+def _require_bool(payload: Mapping[str, object], field_name: str) -> bool:
+    value = _require_field(payload, field_name)
+    if not isinstance(value, bool):
+        raise LlmOutputValidationError(f"LLM output field '{field_name}' must be a boolean")
+    return value
+
+
+def _require_hallucination_type(
+    payload: Mapping[str, object],
+    is_hallucination: bool,
+) -> HallucinationType | None:
+    value = _require_field(payload, "hallucination_type")
+    if value is None:
+        if is_hallucination:
+            raise LlmOutputValidationError(
+                "LLM output hallucination_type must be set when is_hallucination is true"
+            )
+        return None
+    if not isinstance(value, str):
+        raise LlmOutputValidationError(
+            "LLM output field 'hallucination_type' must be a string or null"
+        )
+    if value not in HALLUCINATION_TYPES:
+        expected = ", ".join(HALLUCINATION_TYPES)
+        raise LlmOutputValidationError(
+            f"Unknown hallucination_type '{value}'. Expected one of: {expected}"
+        )
+    if not is_hallucination:
+        raise LlmOutputValidationError(
+            "LLM output hallucination_type must be null when is_hallucination is false"
+        )
+    return value
+
+
+def _require_string_sequence(
+    payload: Mapping[str, object],
+    field_name: str,
+    *,
+    allow_empty: bool,
+) -> tuple[str, ...]:
+    value = _require_field(payload, field_name)
+    if not isinstance(value, list):
+        raise LlmOutputValidationError(
+            f"LLM output field '{field_name}' must be an array of strings"
+        )
+
+    items: list[str] = []
+    for item in value:
+        if not isinstance(item, str) or not item:
+            raise LlmOutputValidationError(
+                f"LLM output field '{field_name}' must contain only non-empty strings"
+            )
+        items.append(item)
+    if not allow_empty and not items:
+        raise LlmOutputValidationError(
+            f"LLM output field '{field_name}' must contain at least one item"
+        )
+    return tuple(items)
 
 
 def _contains_all(text: str, tokens: tuple[str, ...]) -> bool:
@@ -375,13 +536,17 @@ def _contains_none(text: str, tokens: tuple[str, ...]) -> bool:
 __all__ = [
     "DETECTOR_ADAPTERS",
     "DETECTION_RULES",
+    "LLM_OUTPUT_SCHEMA",
     "MOCK_RULE_ID",
     "NO_RULE_REASON",
     "DetectionRule",
+    "LlmOutputValidationError",
     "UnknownDetectorError",
+    "build_llm_prompt",
     "detect_replies",
     "detect_reply",
     "deterministic_detector",
     "mock_detector",
+    "parse_llm_detection_result",
     "select_detector",
 ]

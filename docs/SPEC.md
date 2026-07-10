@@ -21,7 +21,7 @@
 
 ## Stage 3 Plan
 
-第三阶段聚焦 Adapter + 最小 LLM 接入：先对齐 `v0.2.0` 标签后的版本元数据与发布记录，再定义 detector adapter contract，把现有规则检测器包装为默认 `deterministic` adapter，增加离线 `mock` adapter，并提供显式 opt-in 的 `llm` adapter。当前已完成 `deterministic` 和 `mock` 两条离线路径，LLM 输出 schema 与显式 opt-in 的 `llm` adapter 仍在后续任务中完成。阶段三仍保持默认离线可复现，不新增运行时依赖，不改变默认 `data/replies.json` 和 `data/ground_truth.json` 字段格式。
+第三阶段聚焦 Adapter + 最小 LLM 接入：先对齐 `v0.2.0` 标签后的版本元数据与发布记录，再定义 detector adapter contract，把现有规则检测器包装为默认 `deterministic` adapter，增加离线 `mock` adapter，并提供显式 opt-in 的 `llm` adapter。当前已完成 `deterministic` 和 `mock` 两条离线路径，也已定义 LLM prompt、输出 schema 和离线解析校验；显式 opt-in 的 `llm` adapter 仍在后续任务中完成。阶段三仍保持默认离线可复现，不新增运行时依赖，不改变默认 `data/replies.json` 和 `data/ground_truth.json` 字段格式。
 
 项目后续阶段收敛为：
 
@@ -150,5 +150,6 @@ def calculate_f1(precision: float, recall: float) -> float:
 - 规则命中摘要：报告层按规则 ID 聚合命中次数、样本 ID、风险等级、触发意图和中文说明；JSON 保持稳定字段顺序，Markdown 面向人工审阅展示规则解释。
 - 阶段三边界：优先完成 adapter contract、mock adapter 和显式 opt-in 的最小 LLM adapter；多套件 orchestration、复杂 suite 配置和报告回归比较移出阶段三。
 - detector 选择：CLI 当前支持 `--detector deterministic|mock`；`deterministic` 是默认离线路径，`mock` 只生成稳定合成结果用于验证 adapter 注入和报告链路。
+- LLM 输出边界：当前已定义只依据用户问题、系统回复和知识库的 prompt，以及 `case_id`、`is_hallucination`、`hallucination_type`、`reasons`、`rule_ids` 的最小 JSON schema 和离线 parser。
 - 版本元数据跟进：`v0.2.0` 已打标签，阶段三第一批任务需要确认 package/CLI 版本来源，避免发布标签和运行时版本长期不一致。
 - LLM 接入边界：真实 LLM 只作为显式选择路径，不进入默认 CI；密钥只从环境变量读取，不写入报告或日志。

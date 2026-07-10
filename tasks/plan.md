@@ -23,7 +23,7 @@
 ### Phase 2: Offline Adapter Paths
 
 - [x] Task 20: 接入 deterministic adapter 和 mock adapter。
-- [ ] Task 21: 增加 LLM 输出 schema、prompt 模板和解析校验。
+- [x] Task 21: 增加 LLM 输出 schema、prompt 模板和解析校验。
 
 ### Phase 3: Optional LLM Path And Delivery
 

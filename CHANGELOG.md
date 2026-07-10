@@ -11,6 +11,7 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 - Stage-three planning documents for release metadata cleanup, detector adapter boundaries, mock detector coverage, and minimal opt-in LLM detector integration.
 - Detector adapter contract so the pipeline can accept injected detectors while keeping the deterministic detector as the default.
 - Deterministic and mock detector adapters with CLI selection via `--detector deterministic|mock`.
+- LLM prompt template, JSON output schema, and offline parser validation for converting structured model output to `DetectionResult`.
 
 ### Changed
 
