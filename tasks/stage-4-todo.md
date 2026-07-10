@@ -72,21 +72,22 @@
 
 **Acceptance criteria:**
 
-- [ ] ruff、format check、mypy、pytest 和 pre-commit 全部通过。
-- [ ] 默认 packaged data 可在 CLI smoke test 中读取并生成 Markdown/JSON 报告。
-- [ ] `--detector mock` 可离线生成报告。
-- [ ] `--detector llm` 缺少环境变量时返回清晰错误，不产生伪结果。
-- [ ] 验证结果记录到开发文档或阶段四最终收尾记录中。
+- [x] ruff、format check、mypy、pytest 和 pre-commit 全部通过。
+- [x] 默认 packaged data 可在 CLI smoke test 中读取并生成 Markdown/JSON 报告。
+- [x] `--detector mock` 可离线生成报告。
+- [x] `--detector llm` 缺少环境变量时返回清晰错误，不产生伪结果。
+- [x] 验证结果记录到 `docs/QUALITY_SMOKE.md`。
 
 **Verification:**
 
-- [ ] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1`
-- [ ] `pre-commit run --all-files`
-- [ ] `python -m customer_service_hallucination_audit --help`
-- [ ] `python -m customer_service_hallucination_audit --version`
-- [ ] `python -m customer_service_hallucination_audit --output-dir <temp>`
-- [ ] `python -m customer_service_hallucination_audit --detector mock --output-dir <temp>`
-- [ ] `python -m customer_service_hallucination_audit --detector llm --output-dir <temp>` fails clearly without LLM env vars.
+- [x] `py -3.13 -m pip install -e ".[dev]"`
+- [x] `powershell -ExecutionPolicy Bypass -File scripts\quality.ps1`
+- [x] `pre-commit run --all-files`
+- [x] `py -3.13 -m customer_service_hallucination_audit --help`
+- [x] `py -3.13 -m customer_service_hallucination_audit --version`
+- [x] `py -3.13 -m customer_service_hallucination_audit --output-dir <temp>`
+- [x] `py -3.13 -m customer_service_hallucination_audit --detector mock --output-dir <temp>`
+- [x] `py -3.13 -m customer_service_hallucination_audit --detector llm --output-dir <temp>` fails clearly without LLM env vars.
 
 **Dependencies:** Task 25
 

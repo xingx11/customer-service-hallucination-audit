@@ -179,6 +179,7 @@ total=20, precision=1.000, recall=1.000, f1=1.000
 - [阶段四任务清单](tasks/stage-4-todo.md)
 - [发布检查清单](docs/RELEASE_CHECKLIST.md)
 - [交付复核记录](docs/DELIVERY_REVIEW.md)
+- [质量与 CLI smoke 记录](docs/QUALITY_SMOKE.md)
 
 ## 开发路线
 
@@ -196,6 +197,7 @@ v1.0.0  阶段四：最终交付收尾，进行中
 - 最终复核 README、SPEC、CHANGELOG、开发文档和交付报告链接。
 - 使用 `docs/RELEASE_CHECKLIST.md` 固化质量门禁、CLI smoke test、安装验证和打标签步骤。
 - 使用 `docs/DELIVERY_REVIEW.md` 记录最终文档与交付复核结果。
+- 使用 `docs/QUALITY_SMOKE.md` 记录安装、质量门禁和 CLI smoke test 结果。
 - 保持默认 deterministic 路径离线可复现，mock/LLM 路径只作为显式选择。
 - 不新增 `.env` 自动加载、provider SDK 或运行时依赖。
 - 在最后收尾任务中更新 `1.0.0` 版本、生成阶段四交付报告，并在合并 main 后打 `v1.0.0` 标签。

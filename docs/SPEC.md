@@ -25,7 +25,7 @@
 
 ## Stage 4 Status
 
-第四阶段聚焦最终交付收尾：不再新增 detector 能力或运行时依赖，而是完成发布准备计划、发布检查清单、最终文档复核、质量门禁、安装/CLI smoke test、阶段四交付报告和 `v1.0.0` 标签准备。当前阶段四已建立计划入口、发布检查清单和交付复核记录，后续任务按 `tasks/stage-4-plan.md` 和 `tasks/stage-4-todo.md` 执行。
+第四阶段聚焦最终交付收尾：不再新增 detector 能力或运行时依赖，而是完成发布准备计划、发布检查清单、最终文档复核、质量门禁、安装/CLI smoke test、阶段四交付报告和 `v1.0.0` 标签准备。当前阶段四已建立计划入口、发布检查清单、交付复核记录和质量 smoke 记录，后续任务按 `tasks/stage-4-plan.md` 和 `tasks/stage-4-todo.md` 执行。
 
 项目后续阶段收敛为：
 
@@ -47,6 +47,7 @@ v1.0.0  阶段四：最终交付收尾，进行中
 - `tasks/stage-4-todo.md`
 - `docs/RELEASE_CHECKLIST.md`
 - `docs/DELIVERY_REVIEW.md`
+- `docs/QUALITY_SMOKE.md`
 
 `llm` detector 只在显式选择 `--detector llm` 时启用，并从以下环境变量读取配置：
 
@@ -184,3 +185,4 @@ def calculate_f1(precision: float, recall: float) -> float:
 - LLM 接入边界：真实 LLM 只作为显式选择路径，不进入默认 CI；密钥只从环境变量读取，不写入报告或日志。
 - 阶段四边界：最终阶段只做发布准备、文档复核、质量验证、安装/CLI smoke test、最终报告和标签准备；`.env.example` 暂不新增，因为应用不自动读取 `.env`。
 - 阶段四文档复核：README、SPEC、DEVELOPMENT、CHANGELOG、任务清单和阶段一到阶段三交付报告链接已复核；阶段四最终报告保留到 Task 27。
+- 阶段四质量验证：安装、质量门禁、默认 CLI、mock CLI 和 LLM 缺配置路径已通过 Task 26 验证；`1.0.0` 版本提升和阶段四最终报告保留到 Task 27。
