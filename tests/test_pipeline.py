@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from importlib.resources import files
 from pathlib import Path
 
+from customer_service_hallucination_audit.models import DetectionResult, ReplyCase
 from customer_service_hallucination_audit.pipeline import run_audit
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -44,6 +46,32 @@ def test_run_audit_writes_markdown_and_json_reports(tmp_path: Path) -> None:
     assert payload["results"][0]["case_id"] == "h01"
     assert payload["rule_hit_summary"][0]["rule_id"]
     assert payload["rule_hit_summary"][0]["hit_count"] >= 1
+
+
+def test_run_audit_accepts_injected_detector(tmp_path: Path) -> None:
+    def fake_detector(reply_cases: Sequence[ReplyCase]) -> tuple[DetectionResult, ...]:
+        return tuple(
+            DetectionResult(
+                case_id=reply.case_id,
+                is_hallucination=False,
+                hallucination_type=None,
+                reasons=("injected detector result",),
+                rule_ids=(),
+            )
+            for reply in reply_cases
+        )
+
+    result = run_audit(
+        replies_path=REPLIES_PATH,
+        labels_path=GROUND_TRUTH_PATH,
+        output_dir=tmp_path,
+        detector=fake_detector,
+    )
+
+    assert len(result.results) == 20
+    assert result.results[0].case_id == "h01"
+    assert result.results[0].is_hallucination is False
+    assert result.results[0].reasons == ("injected detector result",)
 
 
 def test_default_reports_directory_is_git_ignored() -> None:

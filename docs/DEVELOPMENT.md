@@ -6,7 +6,7 @@
 
 项目第一阶段已经完成，并已打 `v0.1.0` 标签：核心离线评测流水线可通过 CLI 运行，默认数据随包发布，阶段一 Markdown/JSON 交付报告已提交，并有测试验证交付报告与当前 pipeline 输出一致。第二阶段鲁棒性与可解释性增强也已完成，并已打 `v0.2.0` 标签：已交付鲁棒性样本、检测器边界测试、规则元数据模型、规则命中摘要、按类型聚合指标、报告解释增强和阶段二 Markdown/JSON 交付报告。
 
-当前进入第三阶段规划：阶段三调整为 Adapter + 最小 LLM 接入闭环，先处理版本/发布元数据一致性，再建立 detector adapter contract、deterministic adapter、mock adapter、LLM 输出 schema 和显式 opt-in 的 LLM adapter。默认路径继续保持离线、确定性、无真实 LLM API 依赖。
+当前处于第三阶段功能开发：阶段三调整为 Adapter + 最小 LLM 接入闭环，已完成版本/发布元数据一致性和 detector adapter contract，后续继续接入 deterministic adapter、mock adapter、LLM 输出 schema 和显式 opt-in 的 LLM adapter。默认路径继续保持离线、确定性、无真实 LLM API 依赖。
 
 第一阶段完成标准已经满足：
 
@@ -24,6 +24,7 @@
 - 数据闭环：`data/replies.json` 和 `data/ground_truth.json` 均为 20 条，ID 为 `h01` 到 `h20`。
 - 标注分布：18 条幻觉、2 条非幻觉，覆盖政策编造、政策偏差、参数编造、优惠编造、信息编造、能力越界、安全误导、信息遗漏。
 - 当前源码：核心模型、JSON 读取、确定性规则检测、指标计算、报告生成和 CLI 端到端流水线已经拆分到独立模块；默认数据也随包发布，安装后无需源码根目录即可运行。
+- 当前 adapter 边界：`Detector` contract 定义输入为 `ReplyCase` 序列、输出为 `DetectionResult` 序列；`run_audit` 可注入 detector，默认仍使用确定性规则检测器。
 - 当前工具：`scripts/quality.ps1` 依次运行 ruff、format check、mypy、pytest；CI 还会运行 pre-commit。
 - 当前本地状态：CodeGraph 已初始化，`.codegraph/` 是本地索引目录，不应提交。
 - 当前计划入口：`tasks/plan.md` 和 `tasks/todo.md` 已指向第三阶段；阶段三专属文档为 `tasks/stage-3-plan.md` 和 `tasks/stage-3-todo.md`。
@@ -122,10 +123,10 @@
 - Markdown/JSON 报告解释增强
 - 第二阶段交付报告、CHANGELOG 与质量门禁收尾
 - 第三阶段版本元数据与发布记录对齐
+- detector adapter contract 与 pipeline 注入边界
 
 待完成：
 
-- Task 19：定义 detector adapter contract。
 - Task 20：接入 deterministic adapter 和 mock adapter。
 - Task 21：增加 LLM 输出 schema、prompt 模板和解析校验。
 - Task 22：增加可选 LLM adapter 与 CLI detector 选择。
@@ -135,7 +136,7 @@
 
 - 阶段三计划：`tasks/stage-3-plan.md`
 - 阶段三任务清单：`tasks/stage-3-todo.md`
-- 下一步建议做 Task 19，定义 detector adapter contract。
+- 下一步建议做 Task 20，接入 deterministic adapter 和 mock adapter。
 - 阶段三会接入显式 opt-in 的最小 LLM 路径，但默认 detector 和质量门禁仍保持离线可复现。
 
 ## 开发时的默认命令

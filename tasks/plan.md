@@ -18,7 +18,7 @@
 ### Phase 1: Version And Adapter Contract
 
 - [x] Task 18: 对齐版本元数据与发布记录。
-- [ ] Task 19: 定义 detector adapter contract。
+- [x] Task 19: 定义 detector adapter contract。
 
 ### Phase 2: Offline Adapter Paths
 
@@ -32,7 +32,7 @@
 
 ## Checkpoints
 
-- [ ] Adapter Foundation: CLI/package 版本策略清晰，pipeline 可接收不同 detector。
+- [x] Adapter Foundation: CLI/package 版本策略清晰，pipeline 可接收不同 detector。
 - [ ] Offline Confidence: deterministic 和 mock 路径均可离线端到端运行。
 - [ ] Stage 3 Complete: LLM 路径显式 opt-in，默认质量门禁不依赖真实 LLM。
 

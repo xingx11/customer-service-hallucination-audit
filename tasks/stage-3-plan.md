@@ -43,13 +43,13 @@ v1.0.0  阶段四：最终交付收尾
 ### Phase 1: Version And Adapter Contract
 
 - [x] Task 18: 对齐版本元数据与发布记录。
-- [ ] Task 19: 定义 detector adapter contract。
+- [x] Task 19: 定义 detector adapter contract。
 
 ### Checkpoint: Adapter Foundation
 
-- [ ] `python -m customer_service_hallucination_audit --version` 与版本策略一致。
-- [ ] 默认 CLI 输出和阶段二交付报告不发生非预期漂移。
-- [ ] pipeline 可以通过 contract 接收不同 detector。
+- [x] `python -m customer_service_hallucination_audit --version` 与版本策略一致。
+- [x] 默认 CLI 输出和阶段二交付报告不发生非预期漂移。
+- [x] pipeline 可以通过 contract 接收不同 detector。
 
 ### Phase 2: Offline Adapter Paths
 

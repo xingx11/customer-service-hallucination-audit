@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Literal, TypeAlias, cast, get_args
+from typing import Literal, Protocol, TypeAlias, cast, get_args
 
 HallucinationType: TypeAlias = Literal[
     "政策编造",
@@ -105,6 +106,13 @@ class DetectionResult:
         )
 
 
+class Detector(Protocol):
+    """Callable detector adapter contract for the audit pipeline."""
+
+    def __call__(self, reply_cases: Sequence[ReplyCase]) -> Sequence[DetectionResult]:
+        """Return one detection result sequence for the provided reply cases."""
+
+
 @dataclass(frozen=True)
 class MetricsSummary:
     """Confusion-matrix counts and derived binary hallucination metrics."""
@@ -197,6 +205,7 @@ def _validate_required_text(field_name: str, value: str) -> None:
 
 __all__ = [
     "AuditDataset",
+    "Detector",
     "DetectionResult",
     "ErrorCase",
     "ErrorType",
