@@ -7,6 +7,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from typing import TypedDict
 
+from customer_service_hallucination_audit.detector import DETECTION_RULES
 from customer_service_hallucination_audit.metrics import select_error_cases
 from customer_service_hallucination_audit.models import (
     DetectionResult,
@@ -15,6 +16,8 @@ from customer_service_hallucination_audit.models import (
     GroundTruthLabel,
     HallucinationType,
     MetricsSummary,
+    RuleMetadata,
+    RuleRiskLevel,
 )
 
 LIMITATIONS: tuple[str, ...] = (
@@ -44,6 +47,16 @@ class ResultPayload(TypedDict):
     rule_ids: list[str]
 
 
+class RuleHitPayload(TypedDict):
+    rule_id: str
+    hallucination_type: HallucinationType
+    risk_level: RuleRiskLevel
+    description: str
+    trigger_intent: str
+    hit_count: int
+    case_ids: list[str]
+
+
 class LabelPayload(TypedDict):
     case_id: str
     is_hallucination: bool
@@ -61,6 +74,7 @@ class ErrorPayload(TypedDict):
 class ReportPayload(TypedDict):
     metrics: MetricsPayload
     results: list[ResultPayload]
+    rule_hit_summary: list[RuleHitPayload]
     false_positives: list[ErrorPayload]
     false_negatives: list[ErrorPayload]
     type_mismatches: list[ErrorPayload]
@@ -71,10 +85,21 @@ class ReportPayload(TypedDict):
 @dataclass(frozen=True)
 class ReportSections:
     results: tuple[DetectionResult, ...]
+    rule_hit_summary: tuple[RuleHitSummary, ...]
     false_positives: tuple[ErrorCase, ...]
     false_negatives: tuple[ErrorCase, ...]
     type_mismatches: tuple[ErrorCase, ...]
     high_risk_cases: tuple[ErrorCase, ...]
+
+
+@dataclass(frozen=True)
+class RuleHitSummary:
+    metadata: RuleMetadata
+    case_ids: tuple[str, ...]
+
+    @property
+    def hit_count(self) -> int:
+        return len(self.case_ids)
 
 
 def build_report_payload(
@@ -89,6 +114,9 @@ def build_report_payload(
     return {
         "metrics": _metrics_to_payload(metrics),
         "results": [_result_to_payload(result) for result in sections.results],
+        "rule_hit_summary": [
+            _rule_hit_summary_to_payload(summary) for summary in sections.rule_hit_summary
+        ],
         "false_positives": [
             _error_to_payload(error_case) for error_case in sections.false_positives
         ],
@@ -158,6 +186,10 @@ def render_markdown_report(
     lines.extend(
         [
             "",
+            "## 规则命中摘要",
+            "",
+            *_render_rule_hit_summary(sections.rule_hit_summary),
+            "",
             "## 漏检",
             "",
             *_render_error_lines(sections.false_negatives, _format_false_negative),
@@ -190,6 +222,7 @@ def _prepare_report_sections(
     sorted_errors = tuple(sorted(error_cases, key=lambda error_case: error_case.case_id))
     return ReportSections(
         results=sorted_results,
+        rule_hit_summary=_summarize_rule_hits(sorted_results),
         false_positives=select_error_cases(sorted_errors, "false_positive"),
         false_negatives=select_error_cases(sorted_errors, "false_negative"),
         type_mismatches=select_error_cases(sorted_errors, "type_mismatch"),
@@ -221,6 +254,19 @@ def _result_to_payload(result: DetectionResult) -> ResultPayload:
     }
 
 
+def _rule_hit_summary_to_payload(summary: RuleHitSummary) -> RuleHitPayload:
+    metadata = summary.metadata
+    return {
+        "rule_id": metadata.rule_id,
+        "hallucination_type": metadata.hallucination_type,
+        "risk_level": metadata.risk_level,
+        "description": metadata.description,
+        "trigger_intent": metadata.trigger_intent,
+        "hit_count": summary.hit_count,
+        "case_ids": list(summary.case_ids),
+    }
+
+
 def _error_to_payload(error_case: ErrorCase) -> ErrorPayload:
     return {
         "case_id": error_case.case_id,
@@ -237,6 +283,38 @@ def _label_to_payload(label: GroundTruthLabel) -> LabelPayload:
         "hallucination_type": label.hallucination_type,
         "detail": label.detail,
     }
+
+
+def _summarize_rule_hits(results: Iterable[DetectionResult]) -> tuple[RuleHitSummary, ...]:
+    metadata_by_rule_id = {rule.metadata.rule_id: rule.metadata for rule in DETECTION_RULES}
+    case_ids_by_rule_id: dict[str, set[str]] = {}
+
+    for result in results:
+        for rule_id in result.rule_ids:
+            if rule_id not in metadata_by_rule_id:
+                continue
+            case_ids_by_rule_id.setdefault(rule_id, set()).add(result.case_id)
+
+    summaries = tuple(
+        RuleHitSummary(
+            metadata=metadata_by_rule_id[rule_id],
+            case_ids=tuple(sorted(case_ids)),
+        )
+        for rule_id, case_ids in case_ids_by_rule_id.items()
+    )
+    return tuple(sorted(summaries, key=_rule_hit_summary_sort_key))
+
+
+def _rule_hit_summary_sort_key(summary: RuleHitSummary) -> tuple[int, int, str]:
+    return (
+        -summary.hit_count,
+        _risk_sort_order(summary.metadata.risk_level),
+        summary.metadata.rule_id,
+    )
+
+
+def _risk_sort_order(risk_level: RuleRiskLevel) -> int:
+    return {"high": 0, "medium": 1, "low": 2}[risk_level]
 
 
 def _select_high_risk_errors(error_cases: Iterable[ErrorCase]) -> tuple[ErrorCase, ...]:
@@ -262,6 +340,32 @@ def _render_result_row(result: DetectionResult) -> str:
         f"| {_format_cell(result.hallucination_type)} "
         f"| {_format_cell(_join_values(result.rule_ids))} "
         f"| {_format_cell(_join_values(result.reasons))} |"
+    )
+
+
+def _render_rule_hit_summary(summaries: Iterable[RuleHitSummary]) -> list[str]:
+    summaries_tuple = tuple(summaries)
+    if not summaries_tuple:
+        return ["- 无"]
+
+    lines = [
+        "| 规则 ID | 幻觉类型 | 风险等级 | 命中数 | 样本 ID | 触发意图 | 说明 |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    lines.extend(_render_rule_hit_summary_row(summary) for summary in summaries_tuple)
+    return lines
+
+
+def _render_rule_hit_summary_row(summary: RuleHitSummary) -> str:
+    metadata = summary.metadata
+    return (
+        f"| {_format_cell(metadata.rule_id)} "
+        f"| {_format_cell(metadata.hallucination_type)} "
+        f"| {_format_cell(metadata.risk_level)} "
+        f"| {summary.hit_count} "
+        f"| {_format_cell(_join_values(summary.case_ids))} "
+        f"| {_format_cell(metadata.trigger_intent)} "
+        f"| {_format_cell(metadata.description)} |"
     )
 
 

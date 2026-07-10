@@ -38,6 +38,8 @@ def test_run_audit_writes_markdown_and_json_reports(tmp_path: Path) -> None:
     payload = json.loads(result.json_path.read_text(encoding="utf-8"))
     assert payload["metrics"]["total"] == 20
     assert payload["results"][0]["case_id"] == "h01"
+    assert payload["rule_hit_summary"][0]["rule_id"]
+    assert payload["rule_hit_summary"][0]["hit_count"] >= 1
 
 
 def test_default_reports_directory_is_git_ignored() -> None:
