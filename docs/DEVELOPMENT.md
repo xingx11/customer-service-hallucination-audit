@@ -121,10 +121,10 @@
 - 按幻觉类型聚合的指标
 - Markdown/JSON 报告解释增强
 - 第二阶段交付报告、CHANGELOG 与质量门禁收尾
+- 第三阶段版本元数据与发布记录对齐
 
 待完成：
 
-- Task 18：对齐版本元数据与发布记录。
 - Task 19：定义 detector adapter contract。
 - Task 20：接入 deterministic adapter 和 mock adapter。
 - Task 21：增加 LLM 输出 schema、prompt 模板和解析校验。
@@ -135,7 +135,7 @@
 
 - 阶段三计划：`tasks/stage-3-plan.md`
 - 阶段三任务清单：`tasks/stage-3-todo.md`
-- 下一步建议先做 Task 18，修复发布标签和运行时版本元数据可能不一致的问题。
+- 下一步建议做 Task 19，定义 detector adapter contract。
 - 阶段三会接入显式 opt-in 的最小 LLM 路径，但默认 detector 和质量门禁仍保持离线可复现。
 
 ## 开发时的默认命令

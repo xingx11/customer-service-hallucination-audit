@@ -42,7 +42,7 @@ v1.0.0  阶段四：最终交付收尾
 
 ### Phase 1: Version And Adapter Contract
 
-- [ ] Task 18: 对齐版本元数据与发布记录。
+- [x] Task 18: 对齐版本元数据与发布记录。
 - [ ] Task 19: 定义 detector adapter contract。
 
 ### Checkpoint: Adapter Foundation

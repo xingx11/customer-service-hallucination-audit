@@ -17,7 +17,7 @@
 
 ### Phase 1: Version And Adapter Contract
 
-- [ ] Task 18: 对齐版本元数据与发布记录。
+- [x] Task 18: 对齐版本元数据与发布记录。
 - [ ] Task 19: 定义 detector adapter contract。
 
 ### Phase 2: Offline Adapter Paths

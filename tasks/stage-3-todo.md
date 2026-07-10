@@ -37,14 +37,14 @@
 
 **Acceptance criteria:**
 
-- [ ] `pyproject.toml` 和 package `__version__` 与当前阶段版本策略一致。
-- [ ] `python -m customer_service_hallucination_audit --version` 输出符合预期。
-- [ ] CHANGELOG 中 `0.2.0` 发布段落和新的阶段三 `Unreleased` 段落清晰分离。
+- [x] `pyproject.toml` 和 package `__version__` 与当前阶段版本策略一致。
+- [x] `python -m customer_service_hallucination_audit --version` 输出符合预期。
+- [x] CHANGELOG 中 `0.2.0` 发布段落和新的阶段三 `Unreleased` 段落清晰分离。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_cli.py`
-- [ ] Quality gate passes: `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1`
+- [x] Tests pass: `python -m pytest tests/test_cli.py tests/test_scaffold.py`
+- [x] Quality gate passes: `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1`
 
 **Dependencies:** Task 17
 
@@ -53,6 +53,7 @@
 - `pyproject.toml`
 - `src/customer_service_hallucination_audit/__init__.py`
 - `tests/test_cli.py`
+- `tests/test_scaffold.py`
 - `CHANGELOG.md`
 
 **Estimated scope:** Small
