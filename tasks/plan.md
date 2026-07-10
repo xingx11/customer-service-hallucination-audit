@@ -1,86 +1,43 @@
-# Implementation Plan: 第一阶段离线评测流水线
+# Implementation Plan: 当前活动计划（第三阶段）
+
+当前活动计划是第三阶段“Adapter + 最小 LLM 接入”。完整计划见：
+
+- `tasks/stage-3-plan.md`
+- `tasks/stage-3-todo.md`
 
 ## Overview
 
-第一阶段要把当前 Python CLI 脚手架扩展为可复现的离线评测流水线：读取固定 JSON 数据，执行确定性幻觉规则检测，对照人工真值计算指标，生成报告，并通过本地质量门禁与 CI。
-
-## Architecture Decisions
-
-- 核心逻辑保持离线确定性，不接入真实 LLM API。
-- 使用标准库和 dataclass，不新增运行时依赖。
-- CLI 入口只做参数解析和 orchestration 调用，业务逻辑拆分到可单测模块。
-- 报告内容保持稳定排序，便于测试和审阅。
-- 人工真值只用于评估，不参与检测器预测。
-
-## Current State
-
-- 已完成：`docs/SPEC.md`、README、ADR、数据文件、CI、pre-commit、质量脚本、Python 包、领域模型、JSON loader、detector、metrics、reporting、pipeline、CLI 参数、阶段一交付报告和测试覆盖。
-- 当前状态：第一阶段离线评测流水线已经闭环，可通过默认随包数据或显式路径运行，并生成 Markdown/JSON 报告。
-- 本地注意：`.codegraph/` 是 CodeGraph 索引目录，不能提交。
+第三阶段从 `v0.2.0` 标签继续推进，目标是在保持默认离线可复现的前提下，让同一套 pipeline 可以运行 `deterministic`、`mock`、`llm` 三种 detector。第三阶段完成后打 `v0.3.0`，随后只保留最终交付收尾阶段，对应 `v1.0.0`。
 
 ## Task List
 
-### Phase 0: Planning Baseline
+### Phase 0: Stage 3 Replanning
 
-- [x] Task 0: 梳理当前项目状态、开发流程和阶段一任务拆分。
+- [x] Task 17: 重新校准第三阶段为最小 LLM 接入闭环。
 
-### Phase 1: Data Foundation
+### Phase 1: Version And Adapter Contract
 
-- [x] Task 1: 定义领域模型和类型边界。
-- [x] Task 2: 实现 JSON 读取与数据一致性校验。
+- [ ] Task 18: 对齐版本元数据与发布记录。
+- [ ] Task 19: 定义 detector adapter contract。
 
-### Checkpoint: Data Foundation
+### Phase 2: Offline Adapter Paths
 
-- [x] 数据模型测试通过。
-- [x] loader 能发现缺字段、重复 ID、ID 不对齐和未知类型。
-- [x] 业务层没有无约束 `dict[str, object]` 扩散。
+- [ ] Task 20: 接入 deterministic adapter 和 mock adapter。
+- [ ] Task 21: 增加 LLM 输出 schema、prompt 模板和解析校验。
 
-### Phase 2: Detection And Evaluation
+### Phase 3: Optional LLM Path And Delivery
 
-- [x] Task 3: 实现确定性规则检测器。
-- [x] Task 4: 实现指标计算和错误案例分析。
+- [ ] Task 22: 增加可选 LLM adapter 与 CLI detector 选择。
+- [ ] Task 23: 完成第三阶段交付报告、文档和质量门禁。
 
-### Checkpoint: Detection And Evaluation
+## Checkpoints
 
-- [x] 每类幻觉至少有一个测试样例。
-- [x] 非幻觉样本不会被基础规则误报。
-- [x] precision、recall、F1、漏检、误报均有边界测试。
+- [ ] Adapter Foundation: CLI/package 版本策略清晰，pipeline 可接收不同 detector。
+- [ ] Offline Confidence: deterministic 和 mock 路径均可离线端到端运行。
+- [ ] Stage 3 Complete: LLM 路径显式 opt-in，默认质量门禁不依赖真实 LLM。
 
-### Phase 3: Reporting And CLI
+## Boundaries
 
-- [x] Task 5: 实现 Markdown 和 JSON 报告生成。
-- [x] Task 6: 集成 CLI 参数和端到端 pipeline。
-
-### Checkpoint: Reporting And CLI
-
-- [x] 默认命令可读取随包发布的样本并生成报告。
-- [x] 显式输入路径和输出目录可用。
-- [x] 报告内容排序稳定，便于 golden-style 测试。
-
-### Phase 4: Documentation And Quality
-
-- [x] Task 7: 更新 README/SPEC，说明分类体系、方法、局限性和 AI 工具使用。
-- [x] Task 8: 运行质量门禁并完成自审。
-
-### Checkpoint: Complete
-
-- [x] `powershell -ExecutionPolicy Bypass -File scripts/quality.ps1` 通过。
-- [x] CI 同等命令本地可复现。
-- [x] 没有提交缓存、虚拟环境、CodeGraph 数据库或构建产物。
-- [x] 变更可拆成清晰的原子提交。
-
-## Risks and Mitigations
-
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| 检测器无意硬编码人工真值 | 破坏评测可信度 | detector 只接收回复和知识库，评估阶段才读取 ground truth |
-| 规则太分散难维护 | 后续扩展成本高 | 用小规则函数或规则表描述触发条件、类型和原因 |
-| 报告和指标口径不一致 | README、测试和输出互相冲突 | 先在 metrics 测试中固定定义，再让报告复用同一数据结构 |
-| CLI 变成大函数 | 难测试、难复用 | CLI 只解析参数，业务流程放进 pipeline |
-| 缓存目录污染仓库 | 误提交生成文件 | `.gitignore` 覆盖 `.codegraph/`、`.mypy_cache/`、`.pytest_cache/`、`.ruff_cache/` |
-
-## Resolved Decisions
-
-- 阶段一同时保留 Markdown 和 JSON 报告：Markdown 面向人工审阅，JSON 面向自动化验证。
-- 第一阶段不加入 LLM/mock adapter；默认实现保持确定性、离线、无外部 API 依赖。
-- 信息遗漏类保留为独立输出类型，README 中说明规则边界和局限性，后续可继续细化优先级规则。
+- Always: 默认 detector 为 deterministic；LLM 必须显式选择；测试不依赖真实网络。
+- Ask first: 新增运行时依赖；改变默认数据文件格式；把真实 LLM 调用纳入 CI。
+- Never: 提交密钥；用人工真值硬编码预测；LLM 失败时静默伪装成确定性结果。

@@ -8,6 +8,16 @@ The format follows Keep a Changelog, and the project uses semantic versioning af
 
 ### Added
 
+- Stage-three planning documents for release metadata cleanup, detector adapter boundaries, mock detector coverage, and minimal opt-in LLM detector integration.
+
+### Changed
+
+- Updated README, SPEC, development docs, and active task pointers to make stage three the final feature phase before `v1.0.0` delivery closeout.
+
+## [0.2.0] - 2026-07-10
+
+### Added
+
 - Stage-two planning documents for robustness fixtures, rule explainability, per-type metrics, and report enhancements.
 - Stage-two robustness fixtures covering rewritten prompts, difficult negatives, omissions, and safety-sensitive cases.
 - Structured rule metadata with stable rule IDs, hallucination types, risk levels, descriptions, and trigger intent.
