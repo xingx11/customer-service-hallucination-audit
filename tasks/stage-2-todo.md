@@ -106,14 +106,14 @@
 
 **Acceptance criteria:**
 
-- [ ] JSON 报告包含稳定排序的规则命中摘要。
-- [ ] Markdown 报告能解释高风险规则命中的原因。
-- [ ] 不在 CLI 层计算规则统计。
+- [x] JSON 报告包含稳定排序的规则命中摘要。
+- [x] Markdown 报告能解释高风险规则命中的原因。
+- [x] 不在 CLI 层计算规则统计。
 
 **Verification:**
 
-- [ ] Tests pass: `python -m pytest tests/test_reporting.py tests/test_pipeline.py`
-- [ ] Golden-style assertions cover 新增 JSON 字段顺序。
+- [x] Tests pass: `python -m pytest tests/test_reporting.py tests/test_pipeline.py`
+- [x] Golden-style assertions cover 新增 JSON 字段顺序。
 
 **Dependencies:** Task 12
 
